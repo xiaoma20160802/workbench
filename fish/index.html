@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>摸鱼账本 · 打工人专属</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --bg-body: #f0f2f5; --bg-container: rgba(255,255,255,0.85); --bg-card: #ffffffd9;
+    --bg-input: #ffffff; --bg-soft: #f8fafc; --bg-tag: #f1f5f9; --bg-quick: #eef2f6; --bg-hover: #e2e8f0;
+    --text-main: #0f172a; --text-label: #64748b; --text-sub: #475569; --text-muted: #94a3b8;
+    --border: #e2e8f0; --border-strong: #cbd5e1;
+    --accent: #f59e0b; --accent-soft: #fef3c7; --accent-border: #fde68a; --accent-text: #b45309;
+    --header-dash: #cbd5e1;
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-container: 0 20px 35px -8px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.6);
+    --code-bg: #f1f5f9; --md-link: #2563eb;
+}
+body.dark {
+    --bg-body: #0f172a; --bg-container: rgba(30,41,59,0.92); --bg-card: rgba(51,65,85,0.6);
+    --bg-input: #334155; --bg-soft: #1e293b; --bg-tag: #334155; --bg-quick: #334155; --bg-hover: #475569;
+    --text-main: #f1f5f9; --text-label: #94a3b8; --text-sub: #cbd5e1; --text-muted: #64748b;
+    --border: #475569; --border-strong: #64748b;
+    --accent: #fbbf24; --accent-soft: #422006; --accent-border: #854d0e; --accent-text: #fbbf24;
+    --header-dash: #475569;
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.3);
+    --shadow-container: 0 20px 35px -8px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+    --code-bg: #1e293b; --md-link: #60a5fa;
+}
+body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: var(--bg-body); min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; position: relative; transition: background 0.3s;
+}
+body::before { content: "🐟"; position: absolute; top: 12px; left: 18px; font-size: 48px; opacity: 0.15; transform: rotate(-10deg); }
+body::after { content: "💸"; position: absolute; bottom: 12px; right: 18px; font-size: 48px; opacity: 0.15; transform: rotate(15deg); }
+.app-container {
+    width: 100%; max-width: 700px;
+    background: var(--bg-container);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-radius: 36px; box-shadow: var(--shadow-container);
+    padding: 24px 20px 28px; border: 1px solid rgba(255,255,255,0.2);
+    transition: background 0.3s;
+}
+h1 {
+    font-size: 26px; font-weight: 800; letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 8px; color: var(--text-main);
+    margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px dashed var(--header-dash);
+    flex-wrap: wrap;
+}
+h1 span {
+    background: var(--accent); padding: 2px 12px; border-radius: 40px;
+    font-size: 14px; font-weight: 600; color: #1e1b2c; margin-left: auto;
+}
+.settings-btn {
+    background: var(--bg-tag); border: 1px solid var(--border); border-radius: 30px;
+    padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--text-main);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+}
+.settings-btn:hover { background: var(--bg-hover); }
+.section-title {
+    font-size: 15px; font-weight: 600; color: var(--text-sub);
+    margin: 18px 0 10px; display: flex; align-items: center; gap: 6px;
+    letter-spacing: 0.3px; text-transform: uppercase;
+}
+.card-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 6px; }
+.card {
+    background: var(--bg-card); border-radius: 24px; padding: 16px 16px 14px;
+    flex: 1 1 160px; box-shadow: var(--shadow-card);
+    border: 1px solid rgba(255,255,255,0.1); transition: background 0.3s;
+}
+.card-label {
+    font-size: 13px; font-weight: 500; color: var(--text-label);
+    display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+}
+.card-value {
+    font-size: 28px; font-weight: 800; color: var(--text-main);
+    line-height: 1.2; display: flex; align-items: baseline; gap: 4px;
+}
+.card-value small { font-size: 14px; font-weight: 500; color: var(--text-label); }
+.input-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.input-row input, .input-row textarea {
+    width: 100%; padding: 10px 12px; border-radius: 18px;
+    border: 1.5px solid var(--border); background: var(--bg-input);
+    font-size: 16px; font-weight: 500; color: var(--text-main);
+    outline: none; transition: all 0.2s;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+    flex: 1; min-width: 120px; font-family: inherit;
+}
+.input-row input:focus, .input-row textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+}
+.btn {
+    border: none; background: #1e293b; color: white;
+    font-weight: 600; padding: 10px 18px; border-radius: 30px;
+    font-size: 14px; display: inline-flex; align-items: center;
+    justify-content: center; gap: 6px; cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    white-space: nowrap; border: 1px solid rgba(255,255,255,0.2);
+}
+.btn:active { transform: scale(0.96); }
+.btn-secondary {
+    background: var(--bg-input); color: var(--text-main);
+    border: 1.5px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.btn-warning { background: var(--accent); color: #1e1b2c; border: 1px solid var(--accent-border); }
+.btn-small { padding: 8px 14px; font-size: 13px; }
+.flex-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+
+/* 核心 */
+.accounting-box {
+    border: 2px dashed var(--accent); border-radius: 28px;
+    padding: 16px 18px 18px; margin: 18px 0 8px;
+    background: var(--accent-soft); position: relative; transition: background 0.3s;
+}
+.accounting-box .box-title {
+    font-size: 16px; font-weight: 800; color: var(--accent-text);
+    letter-spacing: 0.5px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+}
+.accounting-box .box-title .badge {
+    background: var(--accent); color: #1e1b2c; font-size: 11px;
+    font-weight: 700; padding: 2px 10px; border-radius: 20px;
+}
+.accounting-box .stat-line {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg-soft); padding: 12px 18px; border-radius: 40px;
+    margin-top: 10px; font-weight: 500; border: 1px solid var(--accent-border);
+}
+.accounting-box .stat-line .stat-label {
+    color: var(--text-label); font-size: 14px;
+    display: flex; align-items: center; gap: 6px;
+}
+.accounting-box .stat-line .stat-number {
+    font-weight: 800; font-size: 20px; color: var(--text-main); letter-spacing: -0.3px;
+}
+.stat-number.positive { color: #0b8f5c; }
+body.dark .stat-number.positive { color: #34d399; }
+.stat-number.negative { color: #c2410c; }
+body.dark .stat-number.negative { color: #f87171; }
+.accounting-box .money-detail {
+    font-size: 13px; color: var(--text-label); display: flex;
+    flex-wrap: wrap; gap: 8px 18px; margin-top: 10px; padding-left: 8px;
+}
+.accounting-box .money-detail strong { color: var(--accent-text); }
+.salary-tag {
+    background: var(--bg-tag); padding: 4px 12px; border-radius: 40px;
+    font-size: 13px; font-weight: 500; color: var(--text-main);
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.hint {
+    font-size: 12px; color: var(--text-muted); margin-top: 8px;
+    text-align: center; display: flex; align-items: center;
+    justify-content: center; gap: 6px;
+}
+.reset-btn {
+    background: transparent; border: 1px dashed var(--border-strong);
+    color: var(--text-label); padding: 8px 16px; border-radius: 30px;
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+}
+.reset-btn:hover { background: var(--bg-soft); border-color: var(--text-muted); }
+
+/* 蹲厕 */
+.toilet-timer {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg-input); border-radius: 40px;
+    padding: 8px 16px 8px 20px;
+    border: 1px solid var(--border); flex: 1; min-width: 200px;
+}
+.toilet-timer .timer-display {
+    font-size: 24px; font-weight: 800;
+    font-family: 'Courier New', monospace;
+    color: var(--text-main); letter-spacing: 1px;
+}
+.toilet-timer .timer-label { font-size: 13px; color: var(--text-label); white-space: nowrap; }
+
+/* 计算器 */
+.calc-container { background: var(--bg-card); border-radius: 24px; padding: 16px; border: 1px solid rgba(255,255,255,0.1); }
+.calc-display {
+    width: 100%; padding: 14px 16px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: var(--bg-soft);
+    font-size: 24px; font-weight: 700; text-align: right;
+    color: var(--text-main); outline: none;
+    font-family: 'Courier New', monospace; letter-spacing: 0.5px;
+}
+.calc-buttons { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 12px; }
+.calc-btn {
+    background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 16px;
+    padding: 14px 0; font-size: 18px; font-weight: 600; color: var(--text-main);
+    cursor: pointer; transition: all 0.1s; text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.calc-btn:active { background: var(--bg-hover); transform: scale(0.96); }
+.calc-btn.operator { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent-text); }
+.calc-btn.equal { background: #1e293b; color: white; border-color: #1e293b; }
+.calc-btn.clear { background: #fee2e2; border-color: #fecaca; color: #b91c1c; }
+body.dark .calc-btn.clear { background: #7f1d1d; border-color: #991b1b; color: #fecaca; }
+
+/* 书签 */
+.bookmark-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.bookmark-item {
+    background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 30px;
+    padding: 6px 16px 6px 12px; display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500; color: var(--text-main); cursor: pointer;
+    transition: all 0.15s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    text-decoration: none; position: relative;
+}
+.bookmark-item:hover { background: var(--bg-soft); border-color: var(--border-strong); transform: translateY(-1px); }
+.bookmark-item .remove-bm {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--bg-tag); color: var(--text-label); border-radius: 50%;
+    width: 20px; height: 20px; font-size: 14px; font-weight: 700;
+    margin-left: 4px; transition: all 0.1s;
+}
+.bookmark-item .remove-bm:hover { background: #fee2e2; color: #b91c1c; }
+.quick-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.quick-links a {
+    background: var(--bg-quick); border-radius: 30px; padding: 8px 16px;
+    font-size: 13px; font-weight: 500; color: var(--text-main); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s; border: 1px solid transparent;
+}
+.quick-links a:hover { background: var(--bg-hover); border-color: var(--border); }
+
+/* 导入导出 */
+.io-box { background: var(--bg-card); border-radius: 24px; padding: 16px; border: 1px solid rgba(255,255,255,0.1); margin-top: 8px; }
+.io-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.io-actions .btn { flex: 1 1 140px; }
+.io-textarea {
+    width: 100%; margin-top: 12px; padding: 12px 14px; border-radius: 18px;
+    border: 1.5px solid var(--border); background: var(--bg-soft);
+    font-size: 12px; font-family: 'Courier New', monospace; color: var(--text-main);
+    resize: vertical; min-height: 90px; outline: none; transition: all 0.2s;
+}
+.io-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+.io-hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+/* 抽屉 */
+.drawer-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4); z-index: 999;
+    opacity: 0; visibility: hidden; transition: all 0.3s;
+}
+.drawer-overlay.open { opacity: 1; visibility: visible; }
+.drawer {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--bg-container); backdrop-filter: blur(20px);
+    border-radius: 28px 28px 0 0; padding: 24px 20px 32px; z-index: 1000;
+    transform: translateY(100%); transition: transform 0.3s ease;
+    max-height: 85vh; overflow-y: auto;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.15); border-top: 1px solid var(--border);
+}
+.drawer.open { transform: translateY(0); }
+.drawer-handle { width: 40px; height: 4px; background: var(--border-strong); border-radius: 4px; margin: 0 auto 18px; }
+.drawer h2 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.compare-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background: var(--bg-soft); border-radius: 18px;
+    margin-bottom: 10px; font-size: 14px;
+}
+.compare-row .label { color: var(--text-label); }
+.compare-row .value { font-weight: 800; font-size: 18px; color: var(--text-main); }
+.rating-box {
+    text-align: center; padding: 24px 16px; border-radius: 24px;
+    margin: 16px 0; background: var(--accent-soft); border: 2px solid var(--accent-border);
+}
+.rating-box .rating-emoji { font-size: 48px; margin-bottom: 8px; }
+.rating-box .rating-text { font-size: 28px; font-weight: 800; color: var(--accent-text); }
+.rating-box .rating-desc { font-size: 13px; color: var(--text-label); margin-top: 6px; }
+.warning-box { background: #fef2f2; border: 2px solid #fecaca; border-radius: 20px; padding: 16px 18px; margin-top: 14px; }
+body.dark .warning-box { background: #450a0a; border-color: #7f1d1d; }
+.warning-box .warn-title {
+    font-weight: 800; color: #b91c1c; font-size: 15px;
+    display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+}
+body.dark .warning-box .warn-title { color: #fca5a5; }
+.warning-box .warn-text { font-size: 13px; color: #7f1d1d; line-height: 1.6; }
+body.dark .warning-box .warn-text { color: #fecaca; }
+.drawer-close-btn {
+    width: 100%; margin-top: 18px; padding: 14px;
+    border: none; border-radius: 40px; background: #1e293b;
+    color: #fff; font-weight: 700; font-size: 16px; cursor: pointer;
+}
+body.dark .drawer-close-btn { background: #334155; }
+
+/* 设置 */
+.setting-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px; background: var(--bg-soft); border-radius: 20px; margin-bottom: 12px; gap: 12px;
+}
+.setting-item .setting-label { font-size: 14px; font-weight: 600; color: var(--text-main); }
+.setting-item .setting-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.switch { position: relative; display: inline-block; width: 52px; height: 30px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--border-strong); border-radius: 30px; transition: .3s;
+}
+.slider:before {
+    position: absolute; content: ""; height: 22px; width: 22px;
+    left: 4px; bottom: 4px; background-color: white; border-radius: 50%;
+    transition: .3s; box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.switch input:checked + .slider { background-color: var(--accent); }
+.switch input:checked + .slider:before { transform: translateX(22px); }
+
+/* 编程区 */
+.code-area { display: none; }
+.code-area.visible { display: block; }
+.code-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.code-tab {
+    padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    background: var(--bg-input); border: 1.5px solid var(--border); color: var(--text-label);
+    cursor: pointer; transition: all 0.15s;
+}
+.code-tab.active { background: #1e293b; color: #fff; border-color: #1e293b; }
+body.dark .code-tab.active { background: var(--accent); color: #1e1b2c; border-color: var(--accent); }
+.code-panel { display: none; }
+.code-panel.active { display: block; }
+.code-editor {
+    width: 100%; min-height: 180px; padding: 14px;
+    border-radius: 18px; border: 1.5px solid var(--border);
+    font-family: 'Courier New', monospace; font-size: 13px;
+    line-height: 1.5; color: var(--text-main); background: var(--bg-soft);
+    resize: vertical; outline: none; transition: all 0.2s;
+}
+.code-editor:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+.code-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.hljs-wrap {
+    border-radius: 18px; border: 1.5px solid var(--border);
+    background: var(--bg-soft); overflow: hidden; margin-top: 10px;
+}
+.hljs-wrap pre { margin: 0; padding: 14px; font-size: 13px; overflow-x: auto; }
+.code-preview {
+    width: 100%; min-height: 180px; border: 1.5px solid var(--border);
+    border-radius: 18px; background: #fff; margin-top: 10px;
+}
+.md-preview {
+    min-height: 120px; padding: 16px; border: 1.5px solid var(--border);
+    border-radius: 18px; background: var(--bg-input); margin-top: 10px;
+    font-size: 14px; line-height: 1.8; color: var(--text-main); overflow-wrap: break-word;
+}
+.md-preview h1 { font-size: 22px; font-weight: 800; color: var(--text-main); margin: 16px 0 10px; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+.md-preview h2 { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 14px 0 8px; }
+.md-preview h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin: 12px 0 6px; }
+.md-preview h4, .md-preview h5, .md-preview h6 { font-size: 14px; font-weight: 600; color: var(--text-sub); margin: 10px 0 6px; }
+.md-preview p { margin-bottom: 10px; }
+.md-preview strong { font-weight: 800; color: var(--text-main); }
+.md-preview em { font-style: italic; }
+.md-preview code { background: var(--code-bg); padding: 2px 6px; border-radius: 6px; font-size: 13px; font-family: 'Courier New', monospace; color: #dc2626; }
+body.dark .md-preview code { color: #fca5a5; }
+.md-preview pre { background: var(--code-bg); padding: 12px; border-radius: 12px; overflow-x: auto; margin-bottom: 10px; }
+.md-preview pre code { background: transparent; padding: 0; color: var(--text-main); }
+.md-preview ul, .md-preview ol { padding-left: 24px; margin-bottom: 10px; }
+.md-preview li { margin-bottom: 4px; }
+.md-preview blockquote { border-left: 4px solid var(--accent); padding-left: 14px; color: var(--text-label); margin: 10px 0; font-style: italic; }
+.md-preview a { color: var(--md-link); text-decoration: underline; }
+.md-preview hr { border: none; border-top: 2px solid var(--border); margin: 16px 0; }
+.md-preview table { border-collapse: collapse; width: 100%; margin-bottom: 12px; }
+.md-preview th, .md-preview td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.md-preview th { background: var(--bg-soft); font-weight: 700; }
+
+/* 书架 */
+.shelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
+.shelf-divider { height: 1px; background: var(--border); margin: 18px 4px 10px; opacity: 0.7; }
+.book-card {
+    background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 18px;
+    padding: 14px; cursor: pointer; transition: all 0.15s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03); position: relative;
+    display: flex; flex-direction: column; gap: 6px;
+}
+.book-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,158,11,0.12); }
+.book-card .book-cover { font-size: 32px; }
+.book-card .book-title { font-size: 14px; font-weight: 700; color: var(--text-main); line-height: 1.3; }
+.book-card .book-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+.book-card .book-actions { display: flex; gap: 4px; margin-top: 4px; }
+.book-card .book-actions .mini-btn {
+    flex: 1; font-size: 11px; padding: 4px 0; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg-soft);
+    color: var(--text-label); cursor: pointer; font-weight: 600;
+    transition: all 0.1s;
+}
+.book-card .book-actions .mini-btn:hover { background: var(--bg-hover); }
+.book-card .book-actions .mini-btn.danger { color: #b91c1c; }
+.book-card .book-actions .mini-btn.danger:hover { background: #fee2e2; }
+.book-reader {
+    background: var(--bg-soft); border-radius: 18px; padding: 18px;
+    margin-top: 14px; font-size: 14px; line-height: 1.9; color: var(--text-main);
+    max-height: 50vh; overflow-y: auto; white-space: pre-wrap;
+    border: 1px solid var(--border);
+}
+
+/* 弹窗 */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 1100;
+    opacity: 0; visibility: hidden; transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal-box {
+    background: var(--bg-container); backdrop-filter: blur(20px);
+    border-radius: 28px; padding: 24px 22px;
+    width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid var(--border);
+    transform: scale(0.95); transition: transform 0.25s;
+}
+.modal-overlay.open .modal-box { transform: scale(1); }
+.modal-box h2 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+.form-group input, .form-group textarea {
+    width: 100%; padding: 10px 14px; border-radius: 16px;
+    border: 1.5px solid var(--border); background: var(--bg-input);
+    font-size: 14px; color: var(--text-main); outline: none;
+    font-family: inherit; transition: all 0.2s;
+}
+.form-group input:focus, .form-group textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+}
+.form-group textarea { min-height: 140px; resize: vertical; line-height: 1.6; }
+.char-count { font-size: 12px; color: var(--text-muted); text-align: right; margin-top: 4px; }
+.char-count.over { color: #dc2626; font-weight: 700; }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.modal-actions .btn { flex: 1; }
+
+@media (max-width: 500px) {
+    .app-container { padding: 18px 14px 22px; border-radius: 28px; }
+    .card-value { font-size: 22px; }
+    .toilet-timer .timer-display { font-size: 20px; }
+    .calc-btn { padding: 12px 0; font-size: 16px; }
+    .accounting-box .stat-line .stat-number { font-size: 18px; }
+    .shelf-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app-container">
+    <h1>🐟 摸鱼账本
+        <span>打工人专属</span>
+        <button class="settings-btn" id="openSettingsBtn">⚙️ 设置</button>
+    </h1>
+
+    <div class="section-title"><i>💼</i> 今日记录</div>
+    <div class="card-grid">
+        <div class="card" style="flex: 1 1 180px;">
+            <div class="card-label">⏳ 带薪摸鱼 (分钟)</div>
+            <div class="card-value" id="fishTimeDisplay">0 <small>min</small></div>
+            <div class="input-row">
+                <input type="number" id="fishMinutesInput" placeholder="分钟" min="0" step="1" value="10">
+                <button class="btn btn-small btn-warning" id="addFishBtn">+ 摸鱼</button>
+            </div>
+        </div>
+        <div class="card" style="flex: 1 1 180px;">
+            <div class="card-label">🧾 今日花费 (元)</div>
+            <div class="card-value" id="todaySpentDisplay">0.00 <small>元</small></div>
+            <div class="input-row">
+                <input type="number" id="todaySpentInput" placeholder="金额" min="0" step="0.01" value="0">
+                <button class="btn btn-small" id="addSpentBtn">记录花费</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-grid" style="margin-top: 4px;">
+        <div class="card" style="flex: 1 1 180px;">
+            <div class="card-label">💰 月工资 (元)</div>
+            <div class="card-value" id="salaryDisplay">0 <small>元</small></div>
+            <div class="input-row">
+                <input type="number" id="salaryInput" placeholder="月薪" min="0" step="100" value="0">
+                <button class="btn btn-small btn-secondary" id="setSalaryBtn">设置</button>
+            </div>
+        </div>
+        <div class="card" style="flex: 1 1 180px;">
+            <div class="card-label">📅 本月已花 (元)</div>
+            <div class="card-value" id="monthSpentDisplay">0.00 <small>元</small></div>
+            <div class="input-row">
+                <input type="number" id="monthSpentInput" placeholder="金额" min="0" step="0.01" value="0">
+                <button class="btn btn-small" id="addMonthSpentBtn">记录月花费</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="accounting-box">
+        <div class="box-title">🎯 摸鱼账本 <span class="badge">核心</span></div>
+        <div class="stat-line">
+            <div class="stat-label"><i>📊</i> 本月结余</div>
+            <div class="stat-number" id="balanceDisplay">0.00 元</div>
+        </div>
+        <div class="money-detail">
+            <span>💸 今日时薪: <strong id="hourlyWageDisplay">0.00</strong> 元/时</span>
+            <span>🐟 摸鱼赚回: <strong id="fishEarnedDisplay">0.00</strong> 元</span>
+            <span>📆 月薪日均: <strong id="dailyWageDisplay">0.00</strong> 元</span>
+        </div>
+        <button class="btn btn-small btn-warning" id="compareBtn" style="margin-top:12px; width:100%;">🏁 我和全国比一比</button>
+    </div>
+
+    <div class="section-title"><i>🚽</i> 带薪蹲厕计时</div>
+    <div class="flex-row" style="margin-top: 0;">
+        <div class="toilet-timer">
+            <span class="timer-label">⏱️</span>
+            <span class="timer-display" id="toiletTimerDisplay">00:00</span>
+            <button class="btn btn-small btn-secondary" id="toiletStartBtn">开始</button>
+            <button class="btn btn-small" id="toiletStopBtn" disabled>停止</button>
+        </div>
+        <div class="salary-tag" style="flex-shrink: 0;">💸 已赚 <span id="toiletEarned">0.00</span> 元</div>
+    </div>
+    <div class="hint">🕒 带薪拉屎，时薪按工资自动计算</div>
+
+    <div class="section-title"><i>🧮</i> 摸鱼计算器</div>
+    <div class="calc-container">
+        <input type="text" id="calcDisplay" class="calc-display" value="0" readonly>
+        <div class="calc-buttons">
+            <div class="calc-btn clear" data-action="clear">C</div>
+            <div class="calc-btn operator" data-action="backspace">⌫</div>
+            <div class="calc-btn operator" data-action="percent">%</div>
+            <div class="calc-btn operator" data-action="divide">÷</div>
+            <div class="calc-btn" data-action="7">7</div>
+            <div class="calc-btn" data-action="8">8</div>
+            <div class="calc-btn" data-action="9">9</div>
+            <div class="calc-btn operator" data-action="multiply">×</div>
+            <div class="calc-btn" data-action="4">4</div>
+            <div class="calc-btn" data-action="5">5</div>
+            <div class="calc-btn" data-action="6">6</div>
+            <div class="calc-btn operator" data-action="subtract">−</div>
+            <div class="calc-btn" data-action="1">1</div>
+            <div class="calc-btn" data-action="2">2</div>
+            <div class="calc-btn" data-action="3">3</div>
+            <div class="calc-btn operator" data-action="add">+</div>
+            <div class="calc-btn" data-action="0" style="grid-column: span 2;">0</div>
+            <div class="calc-btn" data-action="dot">.</div>
+            <div class="calc-btn equal" data-action="equal">=</div>
+        </div>
+    </div>
+
+    <div class="section-title"><i>📖</i> 摸鱼书架</div>
+    <div class="input-row" style="margin-top: 0;">
+        <button class="btn btn-small btn-warning" id="addBookBtn" style="width:100%;">➕ 写一本新书 / 记笔记</button>
+    </div>
+    <div class="shelf-grid" id="bookShelfGrid"></div>
+    <div class="shelf-divider"></div>
+    <div class="section-title" style="margin-top: 4px;"><i>📝</i> 摸鱼笔记</div>
+    <div class="shelf-grid" id="noteShelfGrid"></div>
+
+    <div class="section-title"><i>📚</i> 网址百宝库</div>
+    <div class="input-row" style="margin-top: 0;">
+        <input type="text" id="bookmarkNameInput" placeholder="网站名称" style="flex:2;">
+        <input type="url" id="bookmarkUrlInput" placeholder="https://..." style="flex:3;">
+        <button class="btn btn-small" id="addBookmarkBtn">收藏</button>
+    </div>
+    <div class="bookmark-list" id="bookmarkList"></div>
+    <div style="margin-top: 16px;">
+        <div class="section-title" style="margin: 8px 0 6px;"><i>⚡</i> 一键直达</div>
+        <div class="quick-links">
+            <a href="https://www.baidu.com" target="_blank">🔍 百度</a>
+            <a href="https://www.dingtalk.com" target="_blank">📌 钉钉</a>
+            <a href="https://www.google.com" target="_blank">🌐 Google</a>
+            <a href="https://www.bilibili.com" target="_blank">📺 B站</a>
+            <a href="https://weibo.com" target="_blank">📱 微博</a>
+            <a href="https://www.zhihu.com" target="_blank">❓ 知乎</a>
+            <a href="https://www.taobao.com" target="_blank">🛒 淘宝</a>
+            <a href="https://www.douyin.com" target="_blank">🎵 抖音</a>
+        </div>
+    </div>
+
+    <div id="codeArea" class="code-area">
+        <div class="section-title"><i>🛠️</i> 编程定制区</div>
+        <div class="code-tabs">
+            <button class="code-tab active" data-tab="python">🐍 Python</button>
+            <button class="code-tab" data-tab="html">🌐 HTML</button>
+            <button class="code-tab" data-tab="markdown">📝 Markdown</button>
+        </div>
+        <div class="code-panel active" id="panel-python">
+            <textarea class="code-editor" id="pythonEditor" placeholder="在这里写 Python 代码…" spellcheck="false"># 摸鱼 Python 编辑器
+def fish():
+    print("带薪摸鱼中...")
+
+fish()
+</textarea>
+            <div class="code-actions">
+                <button class="btn btn-small btn-secondary" id="downloadPyBtn">⬇️ 导出 .py</button>
+            </div>
+            <div class="hljs-wrap"><pre><code id="pythonHighlight" class="language-python"></code></pre></div>
+            <div class="hint" style="margin-top:6px;">✨ 仅语法高亮，不运行 Python（浏览器环境限制）</div>
+        </div>
+        <div class="code-panel" id="panel-html">
+            <textarea class="code-editor" id="htmlEditor" placeholder="在这里写 HTML…" spellcheck="false"><h1>摸鱼快乐 🐟</h1>
+<p style="color:#f59e0b;">今天也要带薪摸鱼哦～</p>
+</textarea>
+            <div class="code-actions">
+                <button class="btn btn-small btn-warning" id="runHtmlBtn">▶️ 运行预览</button>
+                <button class="btn btn-small btn-secondary" id="downloadHtmlBtn">⬇️ 导出 .html</button>
+            </div>
+            <iframe class="code-preview" id="htmlPreview" sandbox="allow-scripts"></iframe>
+        </div>
+        <div class="code-panel" id="panel-markdown">
+            <textarea class="code-editor" id="mdEditor" placeholder="在这里写 Markdown…" spellcheck="false"># 摸鱼笔记
+## 今日总结
+- 带薪摸鱼 **30 分钟**
+- 喝了 3 杯水
+- 去了 2 次厕所
+
+> 摸鱼不是偷懒，是为了更好地搬砖。
+
+**加粗测试**、*斜体测试*、`行内代码`
+</textarea>
+            <div class="code-actions">
+                <button class="btn btn-small btn-warning" id="runMdBtn">👁️ 渲染预览</button>
+                <button class="btn btn-small btn-secondary" id="downloadMdBtn">⬇️ 导出 .md</button>
+            </div>
+            <div class="md-preview" id="mdPreview"></div>
+        </div>
+    </div>
+
+    <div class="section-title"><i>💾</i> 数据导入 / 导出</div>
+    <div class="io-box">
+        <div class="io-actions">
+            <button class="btn btn-secondary" id="copyJsonBtn">📋 复制 JSON 文本</button>
+            <button class="btn btn-secondary" id="downloadJsonBtn">⬇️ 下载 JSON / ZIP 文件</button>
+        </div>
+        <textarea class="io-textarea" id="jsonTextarea" placeholder="导入时：粘贴JSON文本到这里，或点击下方选择文件…"></textarea>
+        <div class="io-actions" style="margin-top: 10px;">
+            <button class="btn btn-warning" id="importJsonBtn">📥 从文本导入</button>
+            <label class="btn btn-secondary" style="flex: 1 1 140px; cursor: pointer; text-align: center;">
+                📂 从文件导入
+                <input type="file" id="importFileInput" accept=".json,.zip,application/json,application/zip" style="display: none;">
+            </label>
+        </div>
+        <div class="io-hint">💡 小数据（&lt;100KB）可复制 JSON；大数据自动导出 ZIP。导入支持 .json / .zip，ZIP 超过 2MB 判定为恶意文件拒绝上传。</div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
+        <button class="reset-btn" id="resetAllBtn">🧹 重置所有数据</button>
+    </div>
+    <div class="hint" style="margin-top: 12px;">数据保存在本地浏览器 · 摸鱼愉快 🎣</div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="compareDrawer">
+    <div class="drawer-handle"></div>
+    <h2>📊 我和全国比一比</h2>
+    <div class="compare-row"><span class="label">你的月薪</span><span class="value" id="mySalaryCompare">0 元</span></div>
+    <div class="compare-row"><span class="label">全国非私营月均</span><span class="value" style="color:#0b8f5c;">10,787 元</span></div>
+    <div class="compare-row"><span class="label">全国私营月均</span><span class="value" style="color:#f59e0b;">5,966 元</span></div>
+    <div class="rating-box" id="ratingBox">
+        <div class="rating-emoji" id="ratingEmoji">😐</div>
+        <div class="rating-text" id="ratingText">请先设置工资</div>
+        <div class="rating-desc" id="ratingDesc">在上方输入月工资后点击对比</div>
+    </div>
+    <div id="warningContainer"></div>
+    <button class="drawer-close-btn" id="closeDrawerBtn">关闭</button>
+</div>
+
+<div class="drawer-overlay" id="settingsOverlay"></div>
+<div class="drawer" id="settingsDrawer">
+    <div class="drawer-handle"></div>
+    <h2>⚙️ 设置</h2>
+    <div class="setting-item">
+        <div>
+            <div class="setting-label">🌙 暗色模式</div>
+            <div class="setting-desc">切换明色 / 暗色主题</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label>
+    </div>
+    <div class="setting-item">
+        <div>
+            <div class="setting-label">🛠️ 开启编程定制区</div>
+            <div class="setting-desc">显示 Python / HTML / Markdown 在线编辑器</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="codeAreaToggle"><span class="slider"></span></label>
+    </div>
+    <div class="setting-item">
+        <div>
+            <div class="setting-label">📚 找回默认书籍和笔记</div>
+            <div class="setting-desc">恢复自带的 4 本书 + 1 篇《技术实现与使用技巧》笔记</div>
+        </div>
+        <button class="btn btn-small btn-secondary" id="restoreBooksBtn" style="flex-shrink:0;">恢复</button>
+    </div>
+    <button class="drawer-close-btn" id="closeSettingsBtn">完成</button>
+</div>
+
+<div class="drawer-overlay" id="bookOverlay"></div>
+<div class="drawer" id="bookDrawer">
+    <div class="drawer-handle"></div>
+    <h2 id="bookDrawerTitle">📖 阅读</h2>
+    <div class="book-reader" id="bookDrawerContent" style="margin-top:0;"></div>
+    <button class="drawer-close-btn" id="closeBookBtn">合上书本</button>
+</div>
+
+<div class="modal-overlay" id="typeModalOverlay">
+    <div class="modal-box" style="max-width:420px;">
+        <h2>✍️ 新建内容</h2>
+        <p style="font-size:13px;color:var(--text-label);margin-bottom:18px;">先选择你要写的是书还是笔记</p>
+        <div style="display:flex;gap:12px;">
+            <button class="btn btn-warning" id="chooseBookBtn" style="flex:1;flex-direction:column;padding:20px 10px;gap:8px;border-radius:20px;">
+                <span style="font-size:32px;">📖</span>
+                <span>新编一本书</span>
+                <span style="font-size:11px;font-weight:400;opacity:0.8;">书名 + 简介 + 正文<br>正文限 5432 字</span>
+            </button>
+            <button class="btn btn-secondary" id="chooseNoteBtn" style="flex:1;flex-direction:column;padding:20px 10px;gap:8px;border-radius:20px;">
+                <span style="font-size:32px;">📝</span>
+                <span>新记一本笔记</span>
+                <span style="font-size:11px;font-weight:400;opacity:0.8;">标题 + 正文<br>正文限 4000 字</span>
+            </button>
+        </div>
+        <button class="drawer-close-btn" id="closeTypeModalBtn" style="margin-top:18px;">取消</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="bookModalOverlay">
+    <div class="modal-box">
+        <h2 id="bookModalTitle">✍️ 写一本新书</h2>
+        <div class="form-group">
+            <label>标题</label>
+            <input type="text" id="bookTitleField" placeholder="给这个内容起个标题" maxlength="40">
+        </div>
+        <div class="form-group" id="bookDescGroup">
+            <label>简介</label>
+            <input type="text" id="bookDescField" placeholder="一句话介绍（可选）" maxlength="80">
+        </div>
+        <div class="form-group">
+            <label>正文 <span id="bookLimitText" style="font-weight:400;color:var(--text-muted);">（上限 5432 字）</span></label>
+            <textarea id="bookContentField" placeholder="在这里写下正文…" style="min-height:180px;"></textarea>
+            <div class="char-count" id="bookCharCount">0 / 5432</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="cancelBookEditBtn">取消</button>
+            <button class="btn btn-warning" id="saveBookBtn">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    const STORAGE_KEY = 'fishWorkerData';
+    const MAX_BOOK_CHARS = 5432;
+    const MAX_NOTE_CHARS = 4000;
+    const MAX_CLIPBOARD_JSON_SIZE = 100 * 1024;
+    const MAX_ZIP_IMPORT_SIZE = 2 * 1024 * 1024;
+    const MAX_JSON_IMPORT_SIZE = 5 * 1024 * 1024;
+
+    const NOVEL_TEXT = `《摸鱼仙尊》
+
+第一章 摸鱼即修仙
+
+林川是青云科技公司的一名普通后端程序员，入职三年，工位在厕所旁边——不是因为得罪了领导，而是因为他发现，离厕所越近，摸鱼越安全。
+
+这天上午十点，领导在群里发了一条消息：“今天上线，大家辛苦一下。”
+
+林川看了一眼，默默把手机翻过去，打开了自己的摸鱼计时器。
+
+“嗯，今天已经摸了二十八分钟，还差十二分钟达标。”
+
+就在这时，他的电脑屏幕突然一黑，跳出一行金字：
+
+【检测到宿主日均摸鱼时长超过两小时，符合绑定条件。摸鱼系统加载中……】
+
+林川愣住了。
+
+“什么玩意儿？我摸鱼摸出系统来了？”
+
+【摸鱼系统绑定成功。宿主每摸鱼一分钟，获得一点摸鱼值。摸鱼值可兑换：薪水加成、咖啡续杯、带薪拉屎延长时间、以及……隐身摸鱼术。】
+
+林川手一抖，差点把键盘掀了。
+
+“这个系统……有点东西啊。”
+
+第二章 带薪拉屎，境界突破
+
+接下来的一周，林川彻底变了。
+
+别人写代码，他在写摸鱼计划。别人开会，他在后排闭目养神。别人加班，他准时下班，还在工位上留了一张纸条：“去厕所，勿念。”
+
+同事们开始议论：“林川最近是不是摆烂了？”
+
+只有林川自己知道，他正在突破。
+
+【摸鱼值：328。可兑换技能：带薪拉屎·延时术（初级）。】
+
+他毫不犹豫点了兑换。
+
+第二天，林川端着咖啡走进厕所，一待就是四十分钟。出来的时候，神清气爽，代码思路如泉涌，一个困扰团队三天的 bug 被他十分钟搞定。
+
+领导看着他：“你刚才去哪儿了？”
+
+林川微微一笑：“上厕所。灵感来了，顺便把 bug 修了。”
+
+领导沉默了。
+
+第三章 摸鱼大能，震惊全组
+
+一个月后，林川的摸鱼值突破一万。
+
+他兑换了终极技能——【隐身摸鱼术】。
+
+从此，他在工位上睡觉，领导路过以为他在思考架构。他刷短视频，同事以为他在看技术文档。他打游戏，HR 以为他在做压力测试。
+
+更离谱的是，他的绩效居然是全组第一。
+
+原因很简单：摸鱼摸多了，心情好了，写代码效率反而高了。别人加班到十点写出的 bug，他下午四点写完，六点下班，回家打游戏。
+
+季度总结会上，领导拍着他的肩膀说：“林川，你是我们组的榜样。你是怎么做到效率这么高的？”
+
+林川端起保温杯，喝了一口枸杞水，缓缓开口：
+
+“秘诀只有一个——该摸鱼的时候，一定要摸。摸够了，才有力气干活。”
+
+全场沉默三秒，然后掌声雷动。
+
+第四章 摸鱼大道，飞升离职
+
+半年后，林川的摸鱼值突破一百万。
+
+系统提示：【恭喜宿主，摸鱼大道已成。可兑换终极奖励：财务自由卡。】
+
+林川点了兑换。
+
+第二天，他提交了离职申请。
+
+领导急了：“你为什么要走？我给你涨薪！”
+
+林川摆摆手：“不用了。我已经摸到了财务自由的境界。”
+
+领导没听懂。
+
+林川走出公司大门，阳光洒在脸上。他掏出手机，打开摸鱼账本，看到“本月结余”一栏显示着一个他曾经不敢想的数字。
+
+他笑了。
+
+“摸鱼不是偷懒，是打工人的修行。”
+
+（全书完）
+
+—— 本故事纯属虚构，祝各位打工人摸鱼愉快。`;
+
+    const TECH_NOTE_TEXT = `《技术实现与使用技巧》
+
+【第一部分：技术实现】
+
+本工具是一个纯前端单页应用，所有数据保存在浏览器 localStorage 中，无需后端。
+
+1. 数据存储
+   所有状态（摸鱼时长、花费、工资、书架、笔记、书签、主题设置）统一存在一个 JSON 对象里，键名 fishWorkerData，每次修改后即时写入 localStorage。
+
+2. 摸鱼账本计算
+   时薪 = 月薪 / 22 个工作日 / 8 小时。
+   摸鱼赚回 = 摸鱼分钟数 / 60 × 时薪。
+   月结余 = 月薪 - 本月已花。
+
+3. 蹲厕计时
+   每秒累加，同时按“时薪 / 3600”实时累加已赚金额，停止时保存。
+
+4. 全国对比
+   基准数据：全国城镇非私营单位月均 10787 元，私营单位月均 5966 元。
+   按月薪分四档：优秀 / 良好 / 及格 / 不及格。
+   月薪低于 2000 元触发低薪警示。
+
+5. 书架与笔记
+   书和笔记共用同一个数组，用 type 字段区分（book / note）。
+   书限 5432 字，笔记限 4000 字，保存时校验，编辑弹窗实时显示字数。
+
+6. 编程定制区
+   Python：textarea + highlight.js 实时语法高亮，不运行。
+   HTML：textarea + iframe srcdoc 预览。
+   Markdown：textarea + marked.js 渲染，样式完整覆盖标题、粗体、列表、代码块、引用、表格。
+   三个编辑器均可导出为 .py / .html / .md 文件。
+
+7. 导入导出
+   小数据（<100KB）可复制 JSON 到剪贴板；大数据自动压缩成 ZIP 下载。
+   导入支持 .json 和 .zip，ZIP 超过 2MB 判定为恶意文件拒绝上传。
+
+8. 主题
+   明色 / 暗色通过 CSS 变量切换，body 加 dark 类，状态持久化。
+
+【第二部分：使用小技巧】
+
+1. 摸鱼计时
+   把“带薪摸鱼”当成每日打卡，每次接水、上厕所、刷手机都记一笔，月底看摸鱼赚回金额，很有成就感。
+
+2. 蹲厕计时
+   先设置真实月薪，蹲厕时点“开始”，出来点“停止”，能看到这段时间“赚”了多少钱。工资设得越真实，数字越扎心。
+
+3. 书架分类
+   书用来放长内容（攻略、小说），笔记用来放短记录（灵感、待办）。两者分开显示，中间有灰色分界线。
+
+4. 编程区
+   Python 只高亮不运行，适合整理代码片段；HTML 可以实时预览，适合写小页面；Markdown 适合写笔记和文档。写完直接点导出按钮保存成本地文件。
+
+5. 数据迁移
+   换设备时，旧设备点“下载 JSON / ZIP 文件”，新设备点“从文件导入”，选那个文件即可。数据大时会自动打包成 ZIP。
+
+6. 找回默认内容
+   设置里点“找回默认书籍和笔记”，会恢复 4 本书 + 这篇《技术实现与使用技巧》笔记，自己加的内容不会被删（同名的会被覆盖）。
+
+7. 暗色模式
+   设置里打开暗色模式，晚上摸鱼不刺眼。
+
+—— 本笔记由工具自动生成，记录了这个摸鱼账本的技术细节和使用心得。`;
+
+    const DEFAULT_BOOKS = [
+        { type: 'book', title: '摸鱼小技巧', desc: '如何在工位上优雅地摸鱼', content: '一、杯子永远半满——接水是合法走动理由。\n二、浏览器永远开着技术文档——切屏保命。\n三、厕所是第二工位——带薪拉屎，人人有责。\n四、会议坐后排——闭目养神，点头就行。\n五、下班准点走——效率高的人不加班。' },
+        { type: 'book', title: '打工人快捷键大全', desc: 'Windows / Mac 常用快捷键速查', content: '【Windows】\nWin+D 显示桌面\nAlt+Tab 切换窗口\nCtrl+Shift+Esc 任务管理器\nWin+L 锁屏\nCtrl+Z 撤销\n\n【Mac】\nCmd+Tab 切换应用\nCmd+Option+Esc 强制退出\nCmd+Shift+3 截图\nCmd+Z 撤销\n\n【摸鱼专用】\nCtrl+W 关掉摸鱼页面\nAlt+F4 老板来了快速关闭' },
+        { type: 'book', title: '如何快速赚钱', desc: '打工人副业思路（合法版）', content: '一、技能变现：接私活、写代码、做设计、翻译。\n二、内容变现：写公众号、做短视频、知识付费。\n三、闲鱼卖货：清理闲置，低买高卖。\n四、理财：基金定投、国债逆回购（注意风险）。\n五、摸鱼副业：上班摸鱼时研究副业，下班执行。\n\n⚠️ 提醒：别信“日入过万”，赚钱没有捷径，摸鱼也要有底线。' },
+        { type: 'book', title: '摸鱼仙尊（原创爽文）', desc: '一部清爽的摸鱼修仙小说', content: NOVEL_TEXT },
+        { type: 'note', title: '技术实现与使用技巧', desc: '本工具的技术细节和使用心得', content: TECH_NOTE_TEXT },
+    ];
+
+    const defaultData = {
+        fishMinutes: 0,
+        todaySpent: 0,
+        salary: 0,
+        monthSpent: 0,
+        bookmarks: [
+            { name: '百度', url: 'https://www.baidu.com' },
+            { name: '钉钉', url: 'https://www.dingtalk.com' },
+        ],
+        books: JSON.parse(JSON.stringify(DEFAULT_BOOKS)),
+        toiletEarned: 0,
+        lastDate: new Date().toDateString(),
+        codeAreaEnabled: false,
+        darkMode: false,
+    };
+
+    let data = loadData();
+    const todayStr = new Date().toDateString();
+    if (data.lastDate !== todayStr) {
+        data.fishMinutes = 0;
+        data.todaySpent = 0;
+        data.lastDate = todayStr;
+        saveData();
+    }
+
+    const $ = id => document.getElementById(id);
+    const fishTimeDisplay = $('fishTimeDisplay');
+    const fishMinutesInput = $('fishMinutesInput');
+    const addFishBtn = $('addFishBtn');
+    const todaySpentDisplay = $('todaySpentDisplay');
+    const todaySpentInput = $('todaySpentInput');
+    const addSpentBtn = $('addSpentBtn');
+    const salaryDisplay = $('salaryDisplay');
+    const salaryInput = $('salaryInput');
+    const setSalaryBtn = $('setSalaryBtn');
+    const monthSpentDisplay = $('monthSpentDisplay');
+    const monthSpentInput = $('monthSpentInput');
+    const addMonthSpentBtn = $('addMonthSpentBtn');
+    const balanceDisplay = $('balanceDisplay');
+    const hourlyWageDisplay = $('hourlyWageDisplay');
+    const fishEarnedDisplay = $('fishEarnedDisplay');
+    const dailyWageDisplay = $('dailyWageDisplay');
+    const toiletTimerDisplay = $('toiletTimerDisplay');
+    const toiletStartBtn = $('toiletStartBtn');
+    const toiletStopBtn = $('toiletStopBtn');
+    const toiletEarnedSpan = $('toiletEarned');
+    const calcDisplay = $('calcDisplay');
+    const calcButtons = document.querySelectorAll('.calc-btn');
+    const bookmarkNameInput = $('bookmarkNameInput');
+    const bookmarkUrlInput = $('bookmarkUrlInput');
+    const addBookmarkBtn = $('addBookmarkBtn');
+    const bookmarkList = $('bookmarkList');
+    const resetAllBtn = $('resetAllBtn');
+    const copyJsonBtn = $('copyJsonBtn');
+    const downloadJsonBtn = $('downloadJsonBtn');
+    const importJsonBtn = $('importJsonBtn');
+    const jsonTextarea = $('jsonTextarea');
+    const importFileInput = $('importFileInput');
+    const compareBtn = $('compareBtn');
+    const drawerOverlay = $('drawerOverlay');
+    const compareDrawer = $('compareDrawer');
+    const closeDrawerBtn = $('closeDrawerBtn');
+    const mySalaryCompare = $('mySalaryCompare');
+    const ratingEmoji = $('ratingEmoji');
+    const ratingText = $('ratingText');
+    const ratingDesc = $('ratingDesc');
+    const warningContainer = $('warningContainer');
+    const ratingBox = $('ratingBox');
+    const openSettingsBtn = $('openSettingsBtn');
+    const settingsOverlay = $('settingsOverlay');
+    const settingsDrawer = $('settingsDrawer');
+    const closeSettingsBtn = $('closeSettingsBtn');
+    const codeAreaToggle = $('codeAreaToggle');
+    const darkModeToggle = $('darkModeToggle');
+    const restoreBooksBtn = $('restoreBooksBtn');
+    const codeArea = $('codeArea');
+    const addBookBtn = $('addBookBtn');
+    const bookShelfGrid = $('bookShelfGrid');
+    const noteShelfGrid = $('noteShelfGrid');
+    const bookOverlay = $('bookOverlay');
+    const bookDrawer = $('bookDrawer');
+    const bookDrawerTitle = $('bookDrawerTitle');
+    const bookDrawerContent = $('bookDrawerContent');
+    const closeBookBtn = $('closeBookBtn');
+    const typeModalOverlay = $('typeModalOverlay');
+    const chooseBookBtn = $('chooseBookBtn');
+    const chooseNoteBtn = $('chooseNoteBtn');
+    const closeTypeModalBtn = $('closeTypeModalBtn');
+    const bookModalOverlay = $('bookModalOverlay');
+    const bookModalTitle = $('bookModalTitle');
+    const bookTitleField = $('bookTitleField');
+    const bookDescGroup = $('bookDescGroup');
+    const bookDescField = $('bookDescField');
+    const bookContentField = $('bookContentField');
+    const bookLimitText = $('bookLimitText');
+    const bookCharCount = $('bookCharCount');
+    const cancelBookEditBtn = $('cancelBookEditBtn');
+    const saveBookBtn = $('saveBookBtn');
+    const codeTabs = document.querySelectorAll('.code-tab');
+    const codePanels = document.querySelectorAll('.code-panel');
+    const pythonEditor = $('pythonEditor');
+    const pythonHighlight = $('pythonHighlight');
+    const htmlEditor = $('htmlEditor');
+    const runHtmlBtn = $('runHtmlBtn');
+    const htmlPreview = $('htmlPreview');
+    const mdEditor = $('mdEditor');
+    const runMdBtn = $('runMdBtn');
+    const mdPreview = $('mdPreview');
+    const downloadPyBtn = $('downloadPyBtn');
+    const downloadHtmlBtn = $('downloadHtmlBtn');
+    const downloadMdBtn = $('downloadMdBtn');
+
+    let editingBookIndex = -1;
+    let editingBookType = 'book';
+
+    function loadData() {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                return { ...defaultData, ...parsed };
+            }
+        } catch (e) { console.warn('读取存储失败', e); }
+        return JSON.parse(JSON.stringify(defaultData));
+    }
+    function saveData() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+        catch (e) { console.warn('保存失败', e); }
+    }
+    function formatMoney(num) { return Number(num).toFixed(2); }
+    function escapeHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function applyTheme() {
+        document.body.classList.toggle('dark', !!data.darkMode);
+        darkModeToggle.checked = !!data.darkMode;
+    }
+
+    function updateUI() {
+        fishTimeDisplay.innerHTML = `${data.fishMinutes} <small>min</small>`;
+        todaySpentDisplay.innerHTML = `${formatMoney(data.todaySpent)} <small>元</small>`;
+        salaryDisplay.innerHTML = `${formatMoney(data.salary)} <small>元</small>`;
+        monthSpentDisplay.innerHTML = `${formatMoney(data.monthSpent)} <small>元</small>`;
+
+        const balance = data.salary - data.monthSpent;
+        balanceDisplay.textContent = `${formatMoney(balance)} 元`;
+        balanceDisplay.className = `stat-number ${balance >= 0 ? 'positive' : 'negative'}`;
+
+        const hourly = data.salary > 0 ? data.salary / 22 / 8 : 0;
+        hourlyWageDisplay.textContent = formatMoney(hourly);
+        const fishEarned = (data.fishMinutes / 60) * hourly;
+        fishEarnedDisplay.textContent = formatMoney(fishEarned);
+        const daily = data.salary > 0 ? data.salary / 22 : 0;
+        dailyWageDisplay.textContent = formatMoney(daily);
+
+        toiletEarnedSpan.textContent = formatMoney(data.toiletEarned || 0);
+        renderBookmarks();
+        renderShelf();
+
+        if (!toiletTimerInterval) toiletTimerDisplay.textContent = '00:00';
+
+        codeAreaToggle.checked = !!data.codeAreaEnabled;
+        codeArea.classList.toggle('visible', !!data.codeAreaEnabled);
+        applyTheme();
+    }
+
+    function renderBookmarks() {
+        if (!bookmarkList) return;
+        if (!data.bookmarks || data.bookmarks.length === 0) {
+            bookmarkList.innerHTML = '<span style="font-size:13px;color:var(--text-muted);">暂无收藏，添加一个吧～</span>';
+            return;
+        }
+        let html = '';
+        data.bookmarks.forEach((bm, index) => {
+            let url = bm.url;
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+            html += `<a href="${url}" target="_blank" class="bookmark-item" title="${bm.name}">🔖 ${bm.name}<span class="remove-bm" data-index="${index}" title="删除">✕</span></a>`;
+        });
+        bookmarkList.innerHTML = html;
+        document.querySelectorAll('.remove-bm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const idx = btn.getAttribute('data-index');
+                if (idx !== null) {
+                    data.bookmarks.splice(Number(idx), 1);
+                    saveData(); renderBookmarks();
+                }
+            });
+        });
+    }
+
+    function renderShelf() {
+        if (!bookShelfGrid || !noteShelfGrid) return;
+
+        const books = (data.books || []).map((b, i) => ({ ...b, _index: i })).filter(b => b.type !== 'note');
+        const notes = (data.books || []).map((b, i) => ({ ...b, _index: i })).filter(b => b.type === 'note');
+        const icons = ['📕','📗','📘','📙','📔','📒','📚'];
+
+        function renderGroup(grid, list, emptyText, isNote) {
+            if (list.length === 0) {
+                grid.innerHTML = `<span style="font-size:13px;color:var(--text-muted);">${emptyText}</span>`;
+                return;
+            }
+            let html = '';
+            list.forEach((bk, i) => {
+                const icon = isNote ? '📝' : icons[i % icons.length];
+                html += `<div class="book-card" data-index="${bk._index}" data-type="${bk.type || 'book'}">
+                    <div class="book-cover">${icon}</div>
+                    <div class="book-title">${escapeHtml(bk.title)}</div>
+                    <div class="book-desc">${escapeHtml(bk.desc || (isNote ? '点击查看笔记' : '点击阅读'))}</div>
+                    <div class="book-actions">
+                        <button class="mini-btn edit-book" data-index="${bk._index}">编辑</button>
+                        <button class="mini-btn danger delete-book" data-index="${bk._index}">删除</button>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+
+            grid.querySelectorAll('.book-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.book-actions')) return;
+                    const idx = Number(card.getAttribute('data-index'));
+                    openBook(idx);
+                });
+            });
+            grid.querySelectorAll('.edit-book').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = Number(btn.getAttribute('data-index'));
+                    openBookEditor(idx);
+                });
+            });
+            grid.querySelectorAll('.delete-book').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = Number(btn.getAttribute('data-index'));
+                    const item = data.books[idx];
+                    if (confirm(`确定删除《${item.title}》吗？`)) {
+                        data.books.splice(idx, 1);
+                        saveData(); renderShelf();
+                    }
+                });
+            });
+        }
+
+        renderGroup(bookShelfGrid, books, '还没有书，写一本吧～', false);
+        renderGroup(noteShelfGrid, notes, '还没有笔记，记一条吧～', true);
+    }
+
+    function openBook(idx) {
+        const bk = data.books[idx];
+        if (!bk) return;
+        const typeIcon = (bk.type === 'note') ? '📝' : '📖';
+        bookDrawerTitle.textContent = `${typeIcon} ${bk.title}`;
+        bookDrawerContent.textContent = bk.content || '（还没有内容）';
+        bookOverlay.classList.add('open');
+        bookDrawer.classList.add('open');
+    }
+    function closeBook() {
+        bookOverlay.classList.remove('open');
+        bookDrawer.classList.remove('open');
+    }
+    closeBookBtn.addEventListener('click', closeBook);
+    bookOverlay.addEventListener('click', closeBook);
+
+    function getCurrentLimit() {
+        return editingBookType === 'note' ? MAX_NOTE_CHARS : MAX_BOOK_CHARS;
+    }
+
+    function openBookEditor(idx, type) {
+        editingBookIndex = idx;
+        if (idx >= 0) {
+            const bk = data.books[idx];
+            editingBookType = bk.type || 'book';
+            if (editingBookType === 'note') {
+                bookModalTitle.textContent = '✏️ 编辑笔记';
+                bookDescGroup.style.display = 'none';
+                bookLimitText.textContent = `（上限 ${MAX_NOTE_CHARS} 字）`;
+            } else {
+                bookModalTitle.textContent = '✏️ 编辑书籍';
+                bookDescGroup.style.display = 'block';
+                bookLimitText.textContent = `（上限 ${MAX_BOOK_CHARS} 字）`;
+            }
+            bookTitleField.value = bk.title;
+            bookDescField.value = bk.desc || '';
+            bookContentField.value = bk.content || '';
+        } else {
+            editingBookType = type || 'book';
+            if (editingBookType === 'note') {
+                bookModalTitle.textContent = '✍️ 新记一本笔记';
+                bookDescGroup.style.display = 'none';
+                bookLimitText.textContent = `（上限 ${MAX_NOTE_CHARS} 字）`;
+            } else {
+                bookModalTitle.textContent = '✍️ 新编一本书';
+                bookDescGroup.style.display = 'block';
+                bookLimitText.textContent = `（上限 ${MAX_BOOK_CHARS} 字）`;
+            }
+            bookTitleField.value = '';
+            bookDescField.value = '';
+            bookContentField.value = '';
+        }
+        updateCharCount();
+        bookModalOverlay.classList.add('open');
+    }
+    function closeBookEditor() {
+        bookModalOverlay.classList.remove('open');
+        editingBookIndex = -1;
+    }
+    cancelBookEditBtn.addEventListener('click', closeBookEditor);
+    bookModalOverlay.addEventListener('click', (e) => {
+        if (e.target === bookModalOverlay) closeBookEditor();
+    });
+
+    function updateCharCount() {
+        const len = bookContentField.value.length;
+        const limit = getCurrentLimit();
+        bookCharCount.textContent = `${len} / ${limit}`;
+        bookCharCount.classList.toggle('over', len > limit);
+    }
+    bookContentField.addEventListener('input', updateCharCount);
+
+    addBookBtn.addEventListener('click', () => {
+        typeModalOverlay.classList.add('open');
+    });
+    chooseBookBtn.addEventListener('click', () => {
+        typeModalOverlay.classList.remove('open');
+        openBookEditor(-1, 'book');
+    });
+    chooseNoteBtn.addEventListener('click', () => {
+        typeModalOverlay.classList.remove('open');
+        openBookEditor(-1, 'note');
+    });
+    closeTypeModalBtn.addEventListener('click', () => {
+        typeModalOverlay.classList.remove('open');
+    });
+    typeModalOverlay.addEventListener('click', (e) => {
+        if (e.target === typeModalOverlay) typeModalOverlay.classList.remove('open');
+    });
+
+    saveBookBtn.addEventListener('click', () => {
+        const title = bookTitleField.value.trim();
+        const desc = bookDescField.value.trim();
+        const content = bookContentField.value;
+        const limit = getCurrentLimit();
+        if (!title) { alert('请输入标题'); return; }
+        if (content.length > limit) {
+            alert(`正文超过 ${limit} 字上限（当前 ${content.length} 字），请删减后再保存。`);
+            return;
+        }
+        if (editingBookIndex >= 0) {
+            data.books[editingBookIndex] = {
+                type: editingBookType,
+                title,
+                desc: editingBookType === 'note' ? '' : (desc || '点击阅读'),
+                content
+            };
+        } else {
+            data.books.push({
+                type: editingBookType,
+                title,
+                desc: editingBookType === 'note' ? '' : (desc || '点击阅读'),
+                content
+            });
+        }
+        saveData(); renderShelf(); closeBookEditor();
+    });
+
+    // 摸鱼
+    addFishBtn.addEventListener('click', () => {
+        const mins = parseInt(fishMinutesInput.value, 10);
+        if (!isNaN(mins) && mins > 0) {
+            data.fishMinutes += mins; saveData(); updateUI(); fishMinutesInput.value = '';
+        } else alert('请输入有效的分钟数');
+    });
+    addSpentBtn.addEventListener('click', () => {
+        const amount = parseFloat(todaySpentInput.value);
+        if (!isNaN(amount) && amount > 0) {
+            data.todaySpent += amount; saveData(); updateUI(); todaySpentInput.value = '';
+        } else alert('请输入有效的金额');
+    });
+    setSalaryBtn.addEventListener('click', () => {
+        const sal = parseFloat(salaryInput.value);
+        if (!isNaN(sal) && sal >= 0) {
+            data.salary = sal; saveData(); updateUI(); salaryInput.value = '';
+        } else alert('请输入有效的工资');
+    });
+    addMonthSpentBtn.addEventListener('click', () => {
+        const amount = parseFloat(monthSpentInput.value);
+        if (!isNaN(amount) && amount > 0) {
+            data.monthSpent += amount; saveData(); updateUI(); monthSpentInput.value = '';
+        } else alert('请输入有效的金额');
+    });
+
+    // 蹲厕
+    let toiletTimerInterval = null;
+    let toiletSeconds = 0;
+    function getPerSecondEarning() {
+        const hourly = data.salary > 0 ? data.salary / 22 / 8 : 0;
+        return hourly / 3600;
+    }
+    function startToiletTimer() {
+        if (toiletTimerInterval) return;
+        toiletStartBtn.disabled = true;
+        toiletStopBtn.disabled = false;
+        toiletTimerInterval = setInterval(() => {
+            toiletSeconds++;
+            const m = Math.floor(toiletSeconds / 60);
+            const s = toiletSeconds % 60;
+            toiletTimerDisplay.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            data.toiletEarned = (data.toiletEarned || 0) + getPerSecondEarning();
+            toiletEarnedSpan.textContent = formatMoney(data.toiletEarned);
+        }, 1000);
+    }
+    function stopToiletTimer() {
+        if (toiletTimerInterval) {
+            clearInterval(toiletTimerInterval); toiletTimerInterval = null;
+            toiletStartBtn.disabled = false; toiletStopBtn.disabled = true;
+            saveData();
+        }
+    }
+    toiletStartBtn.addEventListener('click', startToiletTimer);
+    toiletStopBtn.addEventListener('click', stopToiletTimer);
+
+    // 计算器
+    let calcCurrentValue = '0';
+    let calcPreviousValue = null;
+    let calcOperation = null;
+    let calcResetOnNext = false;
+    function updateCalcDisplay() { calcDisplay.value = calcCurrentValue; }
+    function performCalculation(a, b, op) {
+        switch (op) {
+            case 'add': return a + b;
+            case 'subtract': return a - b;
+            case 'multiply': return a * b;
+            case 'divide': return b !== 0 ? a / b : NaN;
+            default: return b;
+        }
+    }
+    function handleCalcAction(action) {
+        if (/^[0-9]$/.test(action)) {
+            if (calcResetOnNext) { calcCurrentValue = action; calcResetOnNext = false; }
+            else { if (calcCurrentValue === '0' && action !== '.') calcCurrentValue = action; else calcCurrentValue += action; }
+            updateCalcDisplay(); return;
+        }
+        if (action === 'dot') {
+            if (calcResetOnNext) { calcCurrentValue = '0.'; calcResetOnNext = false; }
+            else if (!calcCurrentValue.includes('.')) calcCurrentValue += '.';
+            updateCalcDisplay(); return;
+        }
+        if (action === 'clear') {
+            calcCurrentValue = '0'; calcPreviousValue = null; calcOperation = null;
+            calcResetOnNext = false; updateCalcDisplay(); return;
+        }
+        if (action === 'backspace') {
+            if (calcCurrentValue.length > 1) calcCurrentValue = calcCurrentValue.slice(0, -1);
+            else calcCurrentValue = '0';
+            updateCalcDisplay(); return;
+        }
+        if (action === 'percent') {
+            const num = parseFloat(calcCurrentValue);
+            if (!isNaN(num)) calcCurrentValue = String(num / 100);
+            updateCalcDisplay(); return;
+        }
+        const operators = ['add', 'subtract', 'multiply', 'divide'];
+        if (operators.includes(action)) {
+            const num = parseFloat(calcCurrentValue);
+            if (!isNaN(num)) {
+                if (calcPreviousValue !== null && calcOperation !== null && !calcResetOnNext) {
+                    const result = performCalculation(calcPreviousValue, num, calcOperation);
+                    calcCurrentValue = String(result); calcPreviousValue = result;
+                } else { calcPreviousValue = num; }
+                calcOperation = action; calcResetOnNext = true; updateCalcDisplay();
+            }
+            return;
+        }
+        if (action === 'equal') {
+            if (calcPreviousValue !== null && calcOperation !== null) {
+                const num = parseFloat(calcCurrentValue);
+                if (!isNaN(num)) {
+                    const result = performCalculation(calcPreviousValue, num, calcOperation);
+                    calcCurrentValue = String(result);
+                    calcPreviousValue = null; calcOperation = null;
+                    calcResetOnNext = true; updateCalcDisplay();
+                }
+            }
+        }
+    }
+    calcButtons.forEach(btn => {
+        btn.addEventListener('click', () => handleCalcAction(btn.getAttribute('data-action')));
+    });
+
+    // 书签
+    addBookmarkBtn.addEventListener('click', () => {
+        const name = bookmarkNameInput.value.trim();
+        let url = bookmarkUrlInput.value.trim();
+        if (!name) { alert('请输入网站名称'); return; }
+        if (!url) { alert('请输入网址'); return; }
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        data.bookmarks.push({ name, url }); saveData(); renderBookmarks();
+        bookmarkNameInput.value = ''; bookmarkUrlInput.value = '';
+    });
+
+    // 全国对比
+    function openCompareDrawer() {
+        const salary = data.salary || 0;
+        mySalaryCompare.textContent = formatMoney(salary) + ' 元';
+        const nonPrivateMonthly = 10787;
+        const privateMonthly = 5966;
+        let emoji, text, desc, bg, border;
+        warningContainer.innerHTML = '';
+        if (salary <= 0) {
+            emoji = '❓'; text = '还没填工资'; desc = '先在上方设置月工资再来对比吧';
+            bg = 'var(--bg-soft)'; border = 'var(--border)';
+        } else if (salary >= nonPrivateMonthly) {
+            emoji = '🏆'; text = '优秀'; desc = `超过全国非私营单位月均 ${formatMoney(nonPrivateMonthly)} 元，工资实力在线`;
+            bg = '#ecfdf5'; border = '#a7f3d0';
+        } else if (salary >= privateMonthly) {
+            emoji = '👍'; text = '良好'; desc = `超过全国私营单位月均 ${formatMoney(privateMonthly)} 元，但还没摸到非私营均值`;
+            bg = '#fefce8'; border = '#fde68a';
+        } else if (salary >= 3000) {
+            emoji = '😐'; text = '及格'; desc = `低于全国私营单位月均 ${formatMoney(privateMonthly)} 元，但至少过了三千线`;
+            bg = '#fff7ed'; border = '#fed7aa';
+        } else {
+            emoji = '😰'; text = '不及格'; desc = '月薪低于3000元，在全国范围内属于偏低水平';
+            bg = '#fef2f2'; border = '#fecaca';
+        }
+        ratingEmoji.textContent = emoji; ratingText.textContent = text; ratingDesc.textContent = desc;
+        ratingBox.style.background = bg; ratingBox.style.borderColor = border;
+        if (salary > 0 && salary < 2000) {
+            warningContainer.innerHTML = `<div class="warning-box">
+                <div class="warn-title">⚠️ 工资异常提醒</div>
+                <div class="warn-text">你输入的月薪 <strong>${formatMoney(salary)} 元</strong> 低于全国最低工资第一档标准（31省均已达到2000元以上）。<br><br>请先确认是否输入有误。如果工资确实如此，用人单位可能涉嫌违反最低工资规定，建议保留工资条、劳动合同等证据，向当地劳动监察部门咨询或投诉。</div>
+            </div>`;
+        }
+        drawerOverlay.classList.add('open'); compareDrawer.classList.add('open');
+    }
+    function closeCompareDrawer() {
+        drawerOverlay.classList.remove('open'); compareDrawer.classList.remove('open');
+    }
+    compareBtn.addEventListener('click', openCompareDrawer);
+    closeDrawerBtn.addEventListener('click', closeCompareDrawer);
+    drawerOverlay.addEventListener('click', closeCompareDrawer);
+
+    // 设置
+    function openSettings() { settingsOverlay.classList.add('open'); settingsDrawer.classList.add('open'); }
+    function closeSettings() { settingsOverlay.classList.remove('open'); settingsDrawer.classList.remove('open'); }
+    openSettingsBtn.addEventListener('click', openSettings);
+    closeSettingsBtn.addEventListener('click', closeSettings);
+    settingsOverlay.addEventListener('click', closeSettings);
+
+    darkModeToggle.addEventListener('change', () => {
+        data.darkMode = darkModeToggle.checked;
+        saveData();
+        applyTheme();
+    });
+
+    codeAreaToggle.addEventListener('change', () => {
+        data.codeAreaEnabled = codeAreaToggle.checked;
+        saveData();
+        codeArea.classList.toggle('visible', data.codeAreaEnabled);
+        if (data.codeAreaEnabled) {
+            updatePythonHighlight();
+            mdPreview.innerHTML = marked.parse(mdEditor.value);
+        }
+    });
+
+    restoreBooksBtn.addEventListener('click', () => {
+        if (!confirm('恢复默认 4 本书 + 1 篇《技术实现与使用技巧》笔记？同名内容会被覆盖，其他内容保留。')) return;
+        const defaultTitles = DEFAULT_BOOKS.map(b => b.title);
+        data.books = data.books.filter(b => !defaultTitles.includes(b.title));
+        DEFAULT_BOOKS.forEach(b => data.books.push(JSON.parse(JSON.stringify(b))));
+        saveData(); renderShelf();
+        alert('✅ 已恢复默认书籍和笔记');
+    });
+
+    // 编程区
+    function updatePythonHighlight() {
+        if (!pythonHighlight) return;
+        const code = pythonEditor.value;
+        try {
+            const result = hljs.highlight(code, { language: 'python' });
+            pythonHighlight.innerHTML = result.value;
+        } catch (e) {
+            pythonHighlight.textContent = code;
+        }
+    }
+    pythonEditor.addEventListener('input', updatePythonHighlight);
+
+    codeTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.getAttribute('data-tab');
+            codeTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            codePanels.forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + target).classList.add('active');
+            if (target === 'python') updatePythonHighlight();
+        });
+    });
+
+    runHtmlBtn.addEventListener('click', () => {
+        htmlPreview.srcdoc = htmlEditor.value;
+    });
+
+    runMdBtn.addEventListener('click', () => {
+        try {
+            mdPreview.innerHTML = marked.parse(mdEditor.value);
+        } catch (e) {
+            mdPreview.textContent = 'Markdown 渲染失败：' + e.message;
+        }
+    });
+
+    // 导出编程文件
+    function downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    downloadPyBtn.addEventListener('click', () => {
+        downloadFile(pythonEditor.value, '摸鱼代码.py', 'text/x-python');
+    });
+    downloadHtmlBtn.addEventListener('click', () => {
+        downloadFile(htmlEditor.value, '摸鱼页面.html', 'text/html');
+    });
+    downloadMdBtn.addEventListener('click', () => {
+        downloadFile(mdEditor.value, '摸鱼笔记.md', 'text/markdown');
+    });
+
+    // 导出：复制 JSON（大小检查）
+    copyJsonBtn.addEventListener('click', () => {
+        const jsonStr = JSON.stringify(data, null, 2);
+        const size = new Blob([jsonStr]).size;
+
+        if (size > MAX_CLIPBOARD_JSON_SIZE) {
+            alert(`⚠️ 当前数据约 ${(size / 1024).toFixed(1)}KB，超过 ${MAX_CLIPBOARD_JSON_SIZE / 1024}KB 上限。\n\n剪贴板功能已禁用，请使用“下载 JSON / ZIP 文件”导出。`);
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                alert('✅ JSON 已复制到剪贴板，可粘贴到其他设备导入');
+            }).catch(() => {
+                jsonTextarea.value = jsonStr;
+                alert('⚠️ 自动复制失败，已填入下方文本框，请手动复制');
+            });
+        } else {
+            jsonTextarea.value = jsonStr;
+            jsonTextarea.select();
+            document.execCommand('copy');
+            alert('✅ JSON 已复制到剪贴板');
+        }
+    });
+
+    // 导出：下载 JSON / ZIP
+    downloadJsonBtn.addEventListener('click', () => {
+        const jsonStr = JSON.stringify(data, null, 2);
+        const size = new Blob([jsonStr]).size;
+        const date = new Date();
+        const stamp = `${date.getFullYear()}${String(date.getMonth()+1).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}`;
+
+        if (size > MAX_CLIPBOARD_JSON_SIZE) {
+            const zip = new JSZip();
+            zip.file('摸鱼账本数据.json', jsonStr);
+            zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } })
+                .then((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `摸鱼账本_${stamp}.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                })
+                .catch((err) => {
+                    alert('❌ ZIP 压缩失败：' + err.message);
+                });
+            return;
+        }
+
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `摸鱼账本_${stamp}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    importJsonBtn.addEventListener('click', () => {
+        const text = jsonTextarea.value.trim();
+        if (!text) { alert('请先粘贴 JSON 文本'); return; }
+        try { applyImportedData(JSON.parse(text)); }
+        catch (e) { alert('❌ JSON 解析失败，请检查格式：' + e.message); }
+    });
+
+    // 导入文件（JSON / ZIP，含大小限制）
+    importFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const isZip = file.name.toLowerCase().endsWith('.zip') ||
+                      file.type === 'application/zip' ||
+                      file.type === 'application/x-zip-compressed';
+
+        if (isZip) {
+            if (file.size > MAX_ZIP_IMPORT_SIZE) {
+                alert(`🚨 检测到 ZIP 文件大小 ${(file.size / 1024 / 1024).toFixed(2)}MB，超过 ${(MAX_ZIP_IMPORT_SIZE / 1024 / 1024).toFixed(1)}MB 安全上限。\n\n疑似恶意攻击，已拒绝上传。`);
+                importFileInput.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                JSZip.loadAsync(ev.target.result).then((zip) => {
+                    const jsonFile = Object.keys(zip.files).find(name => name.toLowerCase().endsWith('.json'));
+                    if (!jsonFile) { alert('❌ ZIP 里没有找到 JSON 文件'); return; }
+                    return zip.files[jsonFile].async('string');
+                }).then((text) => {
+                    try { applyImportedData(JSON.parse(text)); }
+                    catch (err) { alert('❌ ZIP 内 JSON 解析失败：' + err.message); }
+                }).catch((err) => {
+                    alert('❌ ZIP 解析失败：' + err.message);
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            if (file.size > MAX_JSON_IMPORT_SIZE) {
+                alert(`🚨 JSON 文件大小 ${(file.size / 1024 / 1024).toFixed(2)}MB，超过 ${(MAX_JSON_IMPORT_SIZE / 1024 / 1024).toFixed(1)}MB 上限。\n\n疑似恶意文件，已拒绝上传。`);
+                importFileInput.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try { applyImportedData(JSON.parse(ev.target.result)); }
+                catch (err) { alert('❌ 文件解析失败：' + err.message); }
+            };
+            reader.readAsText(file);
+        }
+        importFileInput.value = '';
+    });
+
+    function applyImportedData(parsed) {
+        if (typeof parsed !== 'object' || parsed === null) { alert('❌ 数据格式不正确'); return; }
+        if (!confirm('⚠️ 导入将覆盖当前所有数据，是否继续？')) return;
+        const imported = { ...defaultData, ...parsed };
+        imported.fishMinutes = Number(imported.fishMinutes) || 0;
+        imported.todaySpent = Number(imported.todaySpent) || 0;
+        imported.salary = Number(imported.salary) || 0;
+        imported.monthSpent = Number(imported.monthSpent) || 0;
+        imported.toiletEarned = Number(imported.toiletEarned) || 0;
+        if (!Array.isArray(imported.bookmarks)) imported.bookmarks = [];
+        if (!Array.isArray(imported.books)) imported.books = JSON.parse(JSON.stringify(DEFAULT_BOOKS));
+        imported.codeAreaEnabled = !!imported.codeAreaEnabled;
+        imported.darkMode = !!imported.darkMode;
+        imported.lastDate = new Date().toDateString();
+        data = imported;
+        saveData(); updateUI();
+        toiletSeconds = 0; toiletTimerDisplay.textContent = '00:00';
+        calcCurrentValue = '0'; calcPreviousValue = null; calcOperation = null; calcResetOnNext = false;
+        updateCalcDisplay(); jsonTextarea.value = '';
+        alert('✅ 导入成功！');
+    }
+
+    // 重置
+    resetAllBtn.addEventListener('click', () => {
+        if (!confirm('确定重置所有数据吗？摸鱼记录、账本、收藏、书架都将清空。')) return;
+        data = JSON.parse(JSON.stringify(defaultData));
+        data.lastDate = new Date().toDateString();
+        saveData();
+        if (toiletTimerInterval) {
+            clearInterval(toiletTimerInterval); toiletTimerInterval = null;
+            toiletStartBtn.disabled = false; toiletStopBtn.disabled = true;
+        }
+        toiletSeconds = 0; toiletTimerDisplay.textContent = '00:00';
+        data.toiletEarned = 0; toiletEarnedSpan.textContent = '0.00';
+        calcCurrentValue = '0'; calcPreviousValue = null; calcOperation = null; calcResetOnNext = false;
+        updateCalcDisplay();
+        fishMinutesInput.value = ''; todaySpentInput.value = ''; salaryInput.value = ''; monthSpentInput.value = '';
+        bookmarkNameInput.value = ''; bookmarkUrlInput.value = ''; jsonTextarea.value = '';
+        updateUI(); renderBookmarks(); renderShelf();
+    });
+
+    // 初始化
+    updateUI();
+    updateCalcDisplay();
+    if (data.codeAreaEnabled) {
+        updatePythonHighlight();
+        mdPreview.innerHTML = marked.parse(mdEditor.value);
+    }
+
+    window.addEventListener('beforeunload', () => {
+        if (toiletTimerInterval) { clearInterval(toiletTimerInterval); toiletTimerInterval = null; }
+        saveData();
+    });
+
+    setInterval(() => {
+        const nowDate = new Date().toDateString();
+        if (data.lastDate !== nowDate) {
+            data.lastDate = nowDate; data.fishMinutes = 0; data.todaySpent = 0;
+            saveData(); updateUI();
+        }
+    }, 60000);
+})();
+</script>
+</body>
+</html>
