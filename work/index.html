@@ -1,0 +1,1187 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>巨型工作台 · 三明治时钟版</title>
+  <style>
+    /* ===== 全局 ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
+      background: #eef2f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    #app {
+      width: 100%;
+      max-width: 1340px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 48px;
+      padding: 28px 30px 34px;
+      box-shadow: 0 30px 70px rgba(0, 20, 40, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.5);
+      transition: all 0.25s;
+      min-height: 85vh;
+    }
+    /* ===== 头部导航 ===== */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.04);
+    }
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-left h1 {
+      font-weight: 650;
+      font-size: 1.9rem;
+      color: #0b1a2e;
+      letter-spacing: -0.3px;
+      background: linear-gradient(145deg, #1a2f4a, #0f1f30);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-left .badge {
+      background: #d0dcec;
+      padding: 3px 14px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1a2f4a;
+      letter-spacing: 0.4px;
+    }
+    .back-btn {
+      background: #e3eaf3;
+      border: none;
+      padding: 8px 22px;
+      border-radius: 60px;
+      font-weight: 550;
+      font-size: 0.95rem;
+      color: #1a2f4a;
+      cursor: pointer;
+      transition: 0.18s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-btn:hover {
+      background: #cad4e2;
+      transform: scale(0.96);
+    }
+    .back-btn.hidden {
+      display: none;
+    }
+    /* ===== 首页网格 ===== */
+    .grid-home {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 22px;
+      margin-top: 8px;
+    }
+    .tool-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-radius: 28px;
+      padding: 28px 14px 24px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .tool-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px rgba(0, 20, 40, 0.08);
+      background: rgba(255, 255, 255, 0.85);
+    }
+    .tool-card .icon {
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .tool-card .name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #142433;
+    }
+    .tool-card .desc {
+      font-size: 0.78rem;
+      color: #4d5f78;
+      margin-top: 4px;
+      opacity: 0.8;
+    }
+    /* ===== 工具容器 ===== */
+    .tool-panel {
+      display: none;
+      animation: fadeSlide 0.3s ease;
+    }
+    .tool-panel.active {
+      display: block;
+    }
+    @keyframes fadeSlide {
+      0% { opacity: 0.2; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .tool-panel h2 {
+      font-weight: 600;
+      font-size: 1.6rem;
+      color: #102030;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tool-panel h2 small {
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: #4d637e;
+    }
+    /* ===== 通用卡片 ===== */
+    .card-soft {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-radius: 24px;
+      padding: 22px 26px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+      border: 1px solid rgba(255,255,255,0.5);
+      margin-bottom: 18px;
+    }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+    }
+    .flex-row .grow {
+      flex: 1;
+      min-width: 160px;
+    }
+    input, textarea, select {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid #d4deec;
+      border-radius: 16px;
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      width: 100%;
+      font-family: inherit;
+      transition: 0.15s;
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #6a8bb0;
+      box-shadow: 0 0 0 3px rgba(60, 110, 180, 0.08);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .btn {
+      background: #e4ebf5;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 60px;
+      font-weight: 550;
+      font-size: 0.9rem;
+      color: #1a2f4a;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .btn:hover {
+      background: #cddae8;
+      transform: scale(0.97);
+    }
+    .btn-primary {
+      background: #1a3a6b;
+      color: white;
+      box-shadow: 0 6px 14px rgba(26, 58, 107, 0.2);
+    }
+    .btn-primary:hover {
+      background: #0f2a50;
+    }
+    .btn-danger {
+      background: #c94a5a;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #b03a48;
+    }
+    .btn-success {
+      background: #2b7a5a;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #1f6046;
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 0.8rem;
+    }
+    /* ===== 便签 ===== */
+    .sticky-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .sticky-note {
+      background: #fcf5e3;
+      padding: 16px 20px;
+      border-radius: 20px;
+      min-width: 140px;
+      flex: 1 0 auto;
+      max-width: 240px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+      border-left: 5px solid #d9b56a;
+      word-break: break-word;
+      position: relative;
+    }
+    .sticky-note .del {
+      position: absolute;
+      top: 6px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #b07a5a;
+      opacity: 0.5;
+    }
+    .sticky-note .del:hover { opacity: 1; }
+    /* ===== 待办 ===== */
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+    }
+    .todo-item .text {
+      flex: 1;
+      font-size: 0.98rem;
+    }
+    .todo-item .text.done {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+    .todo-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #1a3a6b;
+      cursor: pointer;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #d4deec;
+      border-radius: 20px;
+      margin: 8px 0 4px;
+      overflow: hidden;
+    }
+    .progress-bar .fill {
+      height: 100%;
+      background: #1a3a6b;
+      border-radius: 20px;
+      width: 0%;
+      transition: width 0.2s;
+    }
+    /* ===== 计算器 ===== */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 340px;
+      margin-top: 8px;
+    }
+    .calc-grid .btn {
+      justify-content: center;
+      padding: 16px 0;
+      font-size: 1.3rem;
+      background: #f0f4fc;
+    }
+    .calc-grid .btn.op {
+      background: #dce4f0;
+    }
+    .calc-grid .btn.eq {
+      background: #1a3a6b;
+      color: white;
+    }
+    .calc-display {
+      background: rgba(0,0,0,0.02);
+      border-radius: 20px;
+      padding: 14px 22px;
+      font-size: 2rem;
+      font-weight: 500;
+      text-align: right;
+      min-height: 70px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      overflow-x: auto;
+    }
+    .calc-history {
+      font-size: 0.8rem;
+      color: #4d637e;
+      min-height: 28px;
+      text-align: right;
+    }
+    /* ===== 日期计算 ===== */
+    .date-result {
+      font-size: 1.2rem;
+      font-weight: 500;
+      padding: 12px 0;
+    }
+    /* ===== 调色板 ===== */
+    .palette-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .color-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .color-swatch:hover { transform: scale(0.94); }
+    .color-hex {
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    /* ===== 字数统计 ===== */
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px 40px;
+      margin: 12px 0 6px;
+    }
+    .stat-row .item {
+      background: rgba(255,255,255,0.4);
+      padding: 6px 20px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+    }
+    .stat-row .item strong {
+      font-weight: 650;
+    }
+    /* ===== 隐藏辅助 ===== */
+    .hidden { display: none !important; }
+    .mt-2 { margin-top: 12px; }
+    .mb-1 { margin-bottom: 8px; }
+    .gap-2 { gap: 8px; }
+    .wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 700px) {
+      #app { padding: 16px; border-radius: 28px; }
+      .grid-home { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .tool-card { padding: 18px 10px; }
+      .nav-left h1 { font-size: 1.4rem; }
+    }
+    @media (max-width: 480px) {
+      .grid-home { grid-template-columns: repeat(2, 1fr); }
+      .calc-grid { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- ===== 导航栏 ===== -->
+  <div class="nav-bar">
+    <div class="nav-left">
+      <h1>🧰 工作台</h1>
+      <span class="badge">三明治时钟</span>
+      <button class="back-btn hidden" id="backHomeBtn">← 返回</button>
+    </div>
+    <div style="font-size:0.85rem; color:#3a4f6a; opacity:0.7;">办公 · 一站式</div>
+  </div>
+
+  <!-- ===== 首页 ===== -->
+  <div id="homePage">
+    <div class="grid-home" id="toolGrid"></div>
+  </div>
+
+  <!-- ===== 工具面板容器 ===== -->
+  <div id="toolPanelContainer"></div>
+</div>
+
+<script>
+  (function() {
+    "use strict";
+
+    // ---------- 工具定义 ----------
+    const TOOLS = [
+      { id: 'notes', icon: '📝', name: '便签板', desc: '随手记录多条便签' },
+      { id: 'todo', icon: '📋', name: '待办清单', desc: '勾选 · 进度条' },
+      { id: 'timer', icon: '🥪', name: '三明治时钟', desc: '25+5 持久化·不重置' },
+      { id: 'calc', icon: '🧮', name: '计算器', desc: '标准四则运算' },
+      { id: 'datecalc', icon: '📅', name: '日期计算', desc: '天数差 · 快捷' },
+      { id: 'palette', icon: '🎨', name: '调色板', desc: 'HEX / RGB 复制' },
+      { id: 'wordcount', icon: '📊', name: '字数统计', desc: '字符/单词/段落' },
+      { id: 'random', icon: '🎲', name: '随机工具', desc: '密码 · 数 · 骰子' },
+    ];
+
+    // ---------- 状态 ----------
+    let currentTool = null;
+    let notes = JSON.parse(localStorage.getItem('wb_notes') || '["构思周报","整理书架"]');
+    let todos = JSON.parse(localStorage.getItem('wb_todos') || '[{"text":"学习HTML","done":false},{"text":"写周报","done":true}]');
+    let timerRefreshInterval = null; // 全局定时器句柄
+
+    // ---------- 持久化时钟 ----------
+    const TIMER_STORAGE_KEY = 'wb_timer_state';
+
+    function getDefaultTimerState() {
+      return {
+        mode: 'work',
+        workDuration: 25 * 60,
+        breakDuration: 5 * 60,
+        timeLeft: 25 * 60,
+        running: false,
+        lastUpdate: Math.floor(Date.now() / 1000)
+      };
+    }
+
+    function loadTimerState() {
+      try {
+        const raw = localStorage.getItem(TIMER_STORAGE_KEY);
+        if (!raw) return getDefaultTimerState();
+        const parts = raw.split('|');
+        if (parts.length !== 6) return getDefaultTimerState();
+        const [mode, workDuration, breakDuration, timeLeft, running, lastUpdate] = parts;
+        return {
+          mode: mode,
+          workDuration: parseInt(workDuration, 10) || 25*60,
+          breakDuration: parseInt(breakDuration, 10) || 5*60,
+          timeLeft: parseInt(timeLeft, 10) || 25*60,
+          running: running === 'true',
+          lastUpdate: parseInt(lastUpdate, 10) || Math.floor(Date.now() / 1000)
+        };
+      } catch (e) {
+        return getDefaultTimerState();
+      }
+    }
+
+    function saveTimerState(state) {
+      try {
+        const data = `${state.mode}|${state.workDuration}|${state.breakDuration}|${state.timeLeft}|${state.running}|${Math.floor(Date.now()/1000)}`;
+        localStorage.setItem(TIMER_STORAGE_KEY, data);
+      } catch (e) { /* ignore */ }
+    }
+
+    function getCurrentTimerDisplay() {
+      const state = loadTimerState();
+      if (!state.running) {
+        return state;
+      }
+      const now = Math.floor(Date.now() / 1000);
+      const elapsed = now - state.lastUpdate;
+      let newTimeLeft = state.timeLeft - elapsed;
+      let newMode = state.mode;
+      let newRunning = true;
+
+      if (newTimeLeft <= 0) {
+        // 切换模式
+        if (state.mode === 'work') {
+          newMode = 'break';
+          newTimeLeft = state.breakDuration;
+        } else {
+          newMode = 'work';
+          newTimeLeft = state.workDuration;
+        }
+        newRunning = false; // 切换后自动暂停，需要用户再次点击开始
+        // 保存切换后的状态
+        const newState = {
+          mode: newMode,
+          workDuration: state.workDuration,
+          breakDuration: state.breakDuration,
+          timeLeft: newTimeLeft,
+          running: newRunning,
+          lastUpdate: Math.floor(Date.now() / 1000)
+        };
+        saveTimerState(newState);
+        return newState;
+      }
+
+      // 更新内存中的状态，但不写入存储（让存储保持原始开始时间，用于校准）
+      return {
+        mode: state.mode,
+        workDuration: state.workDuration,
+        breakDuration: state.breakDuration,
+        timeLeft: newTimeLeft,
+        running: true,
+        lastUpdate: state.lastUpdate // 保留原始时间戳用于下次计算
+      };
+    }
+
+    function syncTimerState(mode, workDuration, breakDuration, timeLeft, running) {
+      const state = {
+        mode: mode,
+        workDuration: workDuration,
+        breakDuration: breakDuration,
+        timeLeft: timeLeft,
+        running: running,
+        lastUpdate: Math.floor(Date.now() / 1000)
+      };
+      saveTimerState(state);
+    }
+
+    // ---------- DOM 引用 ----------
+    const homePage = document.getElementById('homePage');
+    const toolPanelContainer = document.getElementById('toolPanelContainer');
+    const backBtn = document.getElementById('backHomeBtn');
+    const toolGrid = document.getElementById('toolGrid');
+
+    // ---------- 渲染首页卡片 ----------
+    function renderHome() {
+      toolGrid.innerHTML = '';
+      TOOLS.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'tool-card';
+        card.innerHTML = `<span class="icon">${t.icon}</span><div class="name">${t.name}</div><div class="desc">${t.desc}</div>`;
+        card.addEventListener('click', () => openTool(t.id));
+        toolGrid.appendChild(card);
+      });
+    }
+
+    // ---------- 打开工具 ----------
+    function openTool(id) {
+      // 清理之前的定时器
+      if (timerRefreshInterval) {
+        clearInterval(timerRefreshInterval);
+        timerRefreshInterval = null;
+      }
+
+      currentTool = id;
+      homePage.style.display = 'none';
+      toolPanelContainer.innerHTML = '';
+      const panel = document.createElement('div');
+      panel.className = 'tool-panel active';
+      panel.id = 'panel-' + id;
+      try {
+        switch(id) {
+          case 'notes': renderNotes(panel); break;
+          case 'todo': renderTodo(panel); break;
+          case 'timer': renderTimer(panel); break;
+          case 'calc': renderCalc(panel); break;
+          case 'datecalc': renderDateCalc(panel); break;
+          case 'palette': renderPalette(panel); break;
+          case 'wordcount': renderWordCount(panel); break;
+          case 'random': renderRandom(panel); break;
+          default: panel.innerHTML = '<p>工具加载中...</p>';
+        }
+      } catch (e) {
+        panel.innerHTML = `<p style="color:red;">加载工具时出错: ${e.message}</p>`;
+        console.error(e);
+      }
+      toolPanelContainer.appendChild(panel);
+      backBtn.classList.remove('hidden');
+    }
+
+    // ---------- 返回首页 ----------
+    function goHome() {
+      if (timerRefreshInterval) {
+        clearInterval(timerRefreshInterval);
+        timerRefreshInterval = null;
+      }
+      currentTool = null;
+      homePage.style.display = 'block';
+      toolPanelContainer.innerHTML = '';
+      backBtn.classList.add('hidden');
+      localStorage.setItem('wb_notes', JSON.stringify(notes));
+      localStorage.setItem('wb_todos', JSON.stringify(todos));
+    }
+
+    // ============================================================
+    // 工具：三明治时钟 (持久化版本 - 稳定重写)
+    // ============================================================
+    function renderTimer(container) {
+      // 确保没有残留定时器
+      if (timerRefreshInterval) {
+        clearInterval(timerRefreshInterval);
+        timerRefreshInterval = null;
+      }
+
+      // 获取当前状态
+      let current = getCurrentTimerDisplay();
+
+      // 构建 HTML
+      container.innerHTML = `
+        <h2>🥪 三明治时钟 <small>工作+休息 层层交替 · 永不重置</small></h2>
+        <div class="card-soft" style="text-align:center;">
+          <div style="font-size:4rem; font-weight:300; letter-spacing:4px; font-family:monospace;" id="timerDisplay">${formatTime(current.timeLeft)}</div>
+          <div style="font-size:0.9rem; color:#4d637e; margin-top:4px;" id="timerStatus">${current.mode === 'work' ? '🧑‍💻 工作' : '☕ 休息'} · ${formatTime(current.timeLeft)}</div>
+          <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin:16px 0 8px;">
+            <button class="btn btn-success" id="timerStartBtn">▶ 开始</button>
+            <button class="btn" id="timerPauseBtn">⏸ 暂停</button>
+            <button class="btn btn-danger" id="timerResetBtn">⟳ 重置</button>
+          </div>
+          <div style="font-size:0.8rem; color:#7a8aa0;">状态已持久化 · 切换工具不丢失</div>
+        </div>
+      `;
+
+      // 获取元素引用
+      const displayEl = container.querySelector('#timerDisplay');
+      const statusEl = container.querySelector('#timerStatus');
+      const startBtn = container.querySelector('#timerStartBtn');
+      const pauseBtn = container.querySelector('#timerPauseBtn');
+      const resetBtn = container.querySelector('#timerResetBtn');
+
+      // 更新 UI 的函数
+      function updateDisplay() {
+        try {
+          const st = getCurrentTimerDisplay();
+          if (displayEl) displayEl.textContent = formatTime(st.timeLeft);
+          if (statusEl) statusEl.textContent = `${st.mode === 'work' ? '🧑‍💻 工作' : '☕ 休息'} · ${formatTime(st.timeLeft)}`;
+          if (startBtn) startBtn.disabled = st.running;
+          if (pauseBtn) pauseBtn.disabled = !st.running;
+          // 如果定时器没在运行但界面显示 running，修正
+          if (!st.running && timerRefreshInterval) {
+            clearInterval(timerRefreshInterval);
+            timerRefreshInterval = null;
+          }
+        } catch (e) {
+          console.warn('更新显示时出错:', e);
+        }
+      }
+
+      // 开始
+      startBtn.addEventListener('click', function() {
+        try {
+          const st = getCurrentTimerDisplay();
+          if (st.timeLeft <= 0) {
+            // 重置到工作模式并开始
+            syncTimerState('work', st.workDuration, st.breakDuration, st.workDuration, true);
+          } else {
+            syncTimerState(st.mode, st.workDuration, st.breakDuration, st.timeLeft, true);
+          }
+          updateDisplay();
+          // 启动刷新定时器
+          if (timerRefreshInterval) clearInterval(timerRefreshInterval);
+          timerRefreshInterval = setInterval(updateDisplay, 1000);
+        } catch (e) {
+          console.error('开始计时出错:', e);
+        }
+      });
+
+      // 暂停
+      pauseBtn.addEventListener('click', function() {
+        try {
+          const st = getCurrentTimerDisplay();
+          syncTimerState(st.mode, st.workDuration, st.breakDuration, st.timeLeft, false);
+          updateDisplay();
+          if (timerRefreshInterval) {
+            clearInterval(timerRefreshInterval);
+            timerRefreshInterval = null;
+          }
+        } catch (e) {
+          console.error('暂停计时出错:', e);
+        }
+      });
+
+      // 重置
+      resetBtn.addEventListener('click', function() {
+        try {
+          const st = getCurrentTimerDisplay();
+          syncTimerState('work', st.workDuration, st.breakDuration, st.workDuration, false);
+          updateDisplay();
+          if (timerRefreshInterval) {
+            clearInterval(timerRefreshInterval);
+            timerRefreshInterval = null;
+          }
+        } catch (e) {
+          console.error('重置计时出错:', e);
+        }
+      });
+
+      // 初始刷新
+      updateDisplay();
+
+      // 如果当前是运行状态，启动刷新
+      const initialSt = getCurrentTimerDisplay();
+      if (initialSt.running) {
+        if (timerRefreshInterval) clearInterval(timerRefreshInterval);
+        timerRefreshInterval = setInterval(updateDisplay, 1000);
+      }
+    }
+
+    function formatTime(seconds) {
+      if (seconds < 0) seconds = 0;
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    }
+
+    // ============================================================
+    // 工具：便签
+    // ============================================================
+    function renderNotes(container) {
+      container.innerHTML = `
+        <h2>📝 便签板 <small>随手记录</small></h2>
+        <div class="card-soft">
+          <div class="flex-row">
+            <div class="grow"><input type="text" id="noteInput" placeholder="写一条便签…" /></div>
+            <button class="btn btn-primary" id="addNoteBtn">➕ 添加</button>
+          </div>
+        </div>
+        <div class="sticky-grid" id="noteGrid"></div>
+      `;
+      function renderNotesList() {
+        const grid = container.querySelector('#noteGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        notes.forEach((text, idx) => {
+          const div = document.createElement('div');
+          div.className = 'sticky-note';
+          div.innerHTML = `<span>${text}</span><button class="del" data-idx="${idx}">✕</button>`;
+          grid.appendChild(div);
+        });
+        grid.querySelectorAll('.del').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.dataset.idx);
+            notes.splice(idx, 1);
+            localStorage.setItem('wb_notes', JSON.stringify(notes));
+            renderNotesList();
+          });
+        });
+      }
+      const addBtn = container.querySelector('#addNoteBtn');
+      const noteInput = container.querySelector('#noteInput');
+      if (addBtn && noteInput) {
+        addBtn.addEventListener('click', () => {
+          if (noteInput.value.trim()) {
+            notes.push(noteInput.value.trim());
+            localStorage.setItem('wb_notes', JSON.stringify(notes));
+            noteInput.value = '';
+            renderNotesList();
+          }
+        });
+        noteInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') addBtn.click();
+        });
+      }
+      renderNotesList();
+    }
+
+    // ============================================================
+    // 工具：待办
+    // ============================================================
+    function renderTodo(container) {
+      container.innerHTML = `
+        <h2>📋 待办清单 <small>进度 ${todos.filter(t=>t.done).length}/${todos.length}</small></h2>
+        <div class="card-soft">
+          <div class="flex-row">
+            <div class="grow"><input type="text" id="todoInput" placeholder="新任务…" /></div>
+            <button class="btn btn-primary" id="addTodoBtn">➕ 添加</button>
+          </div>
+          <div class="progress-bar"><div class="fill" id="todoProgress" style="width:${todos.length? (todos.filter(t=>t.done).length/todos.length*100):0}%"></div></div>
+          <div id="todoList"></div>
+          <button class="btn btn-danger btn-sm mt-2" id="clearTodoBtn">清空已完成</button>
+        </div>
+      `;
+      function renderTodoList() {
+        const list = container.querySelector('#todoList');
+        if (!list) return;
+        list.innerHTML = '';
+        todos.forEach((item, idx) => {
+          const div = document.createElement('div');
+          div.className = 'todo-item';
+          div.innerHTML = `
+            <input type="checkbox" ${item.done?'checked':''} data-idx="${idx}" />
+            <span class="text ${item.done?'done':''}">${item.text}</span>
+            <button class="btn btn-danger btn-sm" data-idx="${idx}">✕</button>
+          `;
+          list.appendChild(div);
+        });
+        list.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', (e) => {
+            const idx = parseInt(e.target.dataset.idx);
+            todos[idx].done = e.target.checked;
+            localStorage.setItem('wb_todos', JSON.stringify(todos));
+            renderTodoList();
+            updateProgress();
+          });
+        });
+        list.querySelectorAll('.todo-item .btn-danger').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.dataset.idx);
+            todos.splice(idx, 1);
+            localStorage.setItem('wb_todos', JSON.stringify(todos));
+            renderTodoList();
+            updateProgress();
+          });
+        });
+        updateProgress();
+      }
+      function updateProgress() {
+        const total = todos.length;
+        const done = todos.filter(t=>t.done).length;
+        const pct = total ? (done/total*100) : 0;
+        const fill = container.querySelector('#todoProgress');
+        if (fill) fill.style.width = pct + '%';
+        const h2 = container.querySelector('h2 small');
+        if (h2) h2.textContent = `进度 ${done}/${total}`;
+      }
+      const addBtn = container.querySelector('#addTodoBtn');
+      const todoInput = container.querySelector('#todoInput');
+      if (addBtn && todoInput) {
+        addBtn.addEventListener('click', () => {
+          if (todoInput.value.trim()) {
+            todos.push({ text: todoInput.value.trim(), done: false });
+            localStorage.setItem('wb_todos', JSON.stringify(todos));
+            todoInput.value = '';
+            renderTodoList();
+          }
+        });
+        todoInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') addBtn.click();
+        });
+      }
+      const clearBtn = container.querySelector('#clearTodoBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          todos = todos.filter(t => !t.done);
+          localStorage.setItem('wb_todos', JSON.stringify(todos));
+          renderTodoList();
+        });
+      }
+      renderTodoList();
+    }
+
+    // ============================================================
+    // 工具：计算器
+    // ============================================================
+    let calcState = { expression: '', display: '0', history: '' };
+    function renderCalc(container) {
+      calcState.expression = '';
+      calcState.display = '0';
+      calcState.history = '';
+      container.innerHTML = `
+        <h2>🧮 计算器 <small>标准四则</small></h2>
+        <div class="card-soft" style="max-width:400px;">
+          <div class="calc-display" id="calcDisplay">0</div>
+          <div class="calc-history" id="calcHistory"></div>
+          <div class="calc-grid">
+            ${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','⌫','='].map(s => 
+              `<button class="btn ${['÷','×','−','+','='].includes(s)?'op':''} ${s==='='?'eq':''}" data-val="${s}">${s}</button>`
+            ).join('')}
+          </div>
+        </div>
+      `;
+      const display = container.querySelector('#calcDisplay');
+      const history = container.querySelector('#calcHistory');
+      function updateCalc() {
+        if (display) display.textContent = calcState.display || '0';
+        if (history) history.textContent = calcState.history;
+      }
+      container.querySelectorAll('.calc-grid .btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.dataset.val;
+          if (val === 'C') {
+            calcState.expression = '';
+            calcState.display = '0';
+            calcState.history = '';
+            updateCalc();
+            return;
+          }
+          if (val === '⌫') {
+            if (calcState.display.length > 1) calcState.display = calcState.display.slice(0,-1);
+            else calcState.display = '0';
+            updateCalc();
+            return;
+          }
+          if (val === '=') {
+            try {
+              const expr = calcState.expression + calcState.display;
+              const result = Function('"use strict"; return (' + expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-') + ')')();
+              calcState.history = expr + ' =';
+              calcState.display = String(result);
+              calcState.expression = '';
+              updateCalc();
+            } catch(e) {
+              calcState.display = '错误';
+              updateCalc();
+            }
+            return;
+          }
+          if (['+','−','×','÷'].includes(val)) {
+            calcState.expression += calcState.display + val;
+            calcState.display = '0';
+            updateCalc();
+            return;
+          }
+          if (val === '±') {
+            if (calcState.display.startsWith('-')) calcState.display = calcState.display.slice(1);
+            else if (calcState.display !== '0') calcState.display = '-' + calcState.display;
+            updateCalc();
+            return;
+          }
+          if (val === '%') {
+            try {
+              const num = parseFloat(calcState.display);
+              if (!isNaN(num)) calcState.display = String(num/100);
+              updateCalc();
+            } catch(e) {}
+            return;
+          }
+          if (val === '.' && calcState.display.includes('.')) return;
+          if (calcState.display === '0' && val !== '.') calcState.display = val;
+          else calcState.display += val;
+          updateCalc();
+        });
+      });
+      updateCalc();
+    }
+
+    // ============================================================
+    // 工具：日期计算
+    // ============================================================
+    function renderDateCalc(container) {
+      const today = new Date().toISOString().slice(0,10);
+      container.innerHTML = `
+        <h2>📅 日期计算器 <small>天数差</small></h2>
+        <div class="card-soft">
+          <div class="flex-row wrap">
+            <div><label>起始日期</label><input type="date" id="dateStart" value="${today}" /></div>
+            <div><label>结束日期</label><input type="date" id="dateEnd" value="${today}" /></div>
+            <button class="btn btn-primary" id="calcDateBtn">计算差值</button>
+          </div>
+          <div class="date-result" id="dateResult">相差 0 天</div>
+        </div>
+      `;
+      const calcBtn = container.querySelector('#calcDateBtn');
+      const dateStart = container.querySelector('#dateStart');
+      const dateEnd = container.querySelector('#dateEnd');
+      const dateResult = container.querySelector('#dateResult');
+      if (calcBtn && dateStart && dateEnd && dateResult) {
+        calcBtn.addEventListener('click', () => {
+          const start = dateStart.value;
+          const end = dateEnd.value;
+          if (!start || !end) { dateResult.textContent = '请选择完整日期'; return; }
+          const d1 = new Date(start), d2 = new Date(end);
+          const diff = Math.abs(Math.floor((d2 - d1) / (1000*60*60*24)));
+          dateResult.textContent = `📆 相差 ${diff} 天`;
+        });
+      }
+    }
+
+    // ============================================================
+    // 工具：调色板
+    // ============================================================
+    function renderPalette(container) {
+      const colors = ['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#1abc9c','#e67e22','#34495e','#ecf0f1','#e84393'];
+      container.innerHTML = `
+        <h2>🎨 调色板 <small>点击复制</small></h2>
+        <div class="card-soft">
+          <div class="palette-row" id="paletteSwatches"></div>
+          <div style="margin-top:16px; display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
+            <div><strong>HEX</strong> <span id="paletteHex" class="color-hex">#3498db</span></div>
+            <div><strong>RGB</strong> <span id="paletteRgb">rgb(52,152,219)</span></div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm" id="copyHexBtn">复制 HEX</button>
+              <button class="btn btn-sm" id="copyRgbBtn">复制 RGB</button>
+            </div>
+          </div>
+          <div style="margin-top:12px;"><input type="color" id="customColorPicker" value="#3498db" /></div>
+        </div>
+      `;
+      const swatches = container.querySelector('#paletteSwatches');
+      if (swatches) {
+        colors.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'color-swatch';
+          div.style.background = c;
+          div.dataset.color = c;
+          swatches.appendChild(div);
+        });
+      }
+      function setColor(c) {
+        const hexEl = container.querySelector('#paletteHex');
+        const rgbEl = container.querySelector('#paletteRgb');
+        const picker = container.querySelector('#customColorPicker');
+        if (hexEl) hexEl.textContent = c;
+        const rgb = hexToRgb(c);
+        if (rgbEl) rgbEl.textContent = rgb ? `rgb(${rgb.r},${rgb.g},${rgb.b})` : '';
+        if (picker) picker.value = c;
+      }
+      function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? { r: parseInt(result[1],16), g: parseInt(result[2],16), b: parseInt(result[3],16) } : null;
+      }
+      if (swatches) {
+        swatches.addEventListener('click', (e) => {
+          const sw = e.target.closest('.color-swatch');
+          if (sw) setColor(sw.dataset.color);
+        });
+      }
+      const picker = container.querySelector('#customColorPicker');
+      if (picker) {
+        picker.addEventListener('input', (e) => {
+          setColor(e.target.value);
+        });
+      }
+      const copyHex = container.querySelector('#copyHexBtn');
+      const copyRgb = container.querySelector('#copyRgbBtn');
+      if (copyHex) {
+        copyHex.addEventListener('click', () => {
+          const hex = container.querySelector('#paletteHex')?.textContent || '';
+          navigator.clipboard?.writeText(hex).then(() => alert('已复制: '+hex));
+        });
+      }
+      if (copyRgb) {
+        copyRgb.addEventListener('click', () => {
+          const rgb = container.querySelector('#paletteRgb')?.textContent || '';
+          navigator.clipboard?.writeText(rgb).then(() => alert('已复制: '+rgb));
+        });
+      }
+      setColor('#3498db');
+    }
+
+    // ============================================================
+    // 工具：字数统计
+    // ============================================================
+    function renderWordCount(container) {
+      container.innerHTML = `
+        <h2>📊 字数统计 <small>字符 · 单词 · 段落</small></h2>
+        <div class="card-soft">
+          <textarea id="wcInput" placeholder="粘贴或输入文字…" style="min-height:160px;"></textarea>
+          <div class="stat-row" id="wcStats">
+            <div class="item">字符: <strong id="wcChars">0</strong></div>
+            <div class="item">汉字: <strong id="wcChinese">0</strong></div>
+            <div class="item">单词: <strong id="wcWords">0</strong></div>
+            <div class="item">段落: <strong id="wcParas">0</strong></div>
+          </div>
+        </div>
+      `;
+      const input = container.querySelector('#wcInput');
+      function updateStats() {
+        if (!input) return;
+        const text = input.value;
+        const chars = text.length;
+        const chinese = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+        const words = text.trim() ? text.trim().split(/\s+/).filter(w=>w).length : 0;
+        const paras = text.trim() ? text.split(/\n/).filter(p=>p.trim()).length : 0;
+        const charsEl = container.querySelector('#wcChars');
+        const chineseEl = container.querySelector('#wcChinese');
+        const wordsEl = container.querySelector('#wcWords');
+        const parasEl = container.querySelector('#wcParas');
+        if (charsEl) charsEl.textContent = chars;
+        if (chineseEl) chineseEl.textContent = chinese;
+        if (wordsEl) wordsEl.textContent = words;
+        if (parasEl) parasEl.textContent = paras;
+      }
+      if (input) {
+        input.addEventListener('input', updateStats);
+        updateStats();
+      }
+    }
+
+    // ============================================================
+    // 工具：随机
+    // ============================================================
+    function renderRandom(container) {
+      container.innerHTML = `
+        <h2>🎲 随机工具 <small>密码 · 数字 · 骰子</small></h2>
+        <div class="card-soft">
+          <div class="flex-row wrap">
+            <div class="grow"><input type="number" id="randMin" value="1" style="width:80px; display:inline;" /> ~ <input type="number" id="randMax" value="100" style="width:80px; display:inline;" /></div>
+            <button class="btn btn-primary" id="randNumBtn">🎲 随机数</button>
+            <span id="randResult" style="font-weight:600; font-size:1.4rem; min-width:70px;">-</span>
+          </div>
+          <hr style="margin:16px 0; opacity:0.1;" />
+          <div class="flex-row wrap">
+            <div class="grow"><input type="number" id="pwdLength" value="12" min="4" max="32" style="width:80px; display:inline;" /> 位</div>
+            <button class="btn btn-primary" id="genPwdBtn">🔑 生成密码</button>
+            <span id="pwdResult" style="font-family:monospace; font-weight:500; word-break:break-all;">-</span>
+          </div>
+          <hr style="margin:16px 0; opacity:0.1;" />
+          <div class="flex-row wrap">
+            <button class="btn" id="diceBtn">🎲 掷骰子</button>
+            <span id="diceResult" style="font-size:1.6rem;">⚀</span>
+          </div>
+        </div>
+      `;
+      const randBtn = container.querySelector('#randNumBtn');
+      const randMin = container.querySelector('#randMin');
+      const randMax = container.querySelector('#randMax');
+      const randResult = container.querySelector('#randResult');
+      if (randBtn && randMin && randMax && randResult) {
+        randBtn.addEventListener('click', () => {
+          const min = parseInt(randMin.value) || 1;
+          const max = parseInt(randMax.value) || 100;
+          if (min >= max) { randResult.textContent = '⚠️'; return; }
+          const r = Math.floor(Math.random() * (max - min + 1)) + min;
+          randResult.textContent = r;
+        });
+      }
+      const pwdBtn = container.querySelector('#genPwdBtn');
+      const pwdLength = container.querySelector('#pwdLength');
+      const pwdResult = container.querySelector('#pwdResult');
+      if (pwdBtn && pwdLength && pwdResult) {
+        pwdBtn.addEventListener('click', () => {
+          const len = parseInt(pwdLength.value) || 12;
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+          let pwd = '';
+          for (let i=0; i<len; i++) pwd += chars.charAt(Math.floor(Math.random()*chars.length));
+          pwdResult.textContent = pwd;
+        });
+      }
+      const diceBtn = container.querySelector('#diceBtn');
+      const diceResult = container.querySelector('#diceResult');
+      if (diceBtn && diceResult) {
+        diceBtn.addEventListener('click', () => {
+          const val = Math.floor(Math.random()*6)+1;
+          const dice = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+          diceResult.textContent = dice[val-1] + ' ' + val;
+        });
+      }
+    }
+
+    // ---------- 返回 & 初始化 ----------
+    backBtn.addEventListener('click', goHome);
+
+    renderHome();
+    homePage.style.display = 'block';
+    toolPanelContainer.innerHTML = '';
+    backBtn.classList.add('hidden');
+
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem('wb_notes', JSON.stringify(notes));
+      localStorage.setItem('wb_todos', JSON.stringify(todos));
+      if (timerRefreshInterval) {
+        clearInterval(timerRefreshInterval);
+        timerRefreshInterval = null;
+      }
+    });
+
+  })();
+</script>
+</body>
+</html>
+```
