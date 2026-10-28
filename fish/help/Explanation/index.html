@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工资低于最低标准 · 维权全说明书</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: linear-gradient(145deg,#f3f6fc 0%,#e9eefa 100%);
+  font-family: system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans',sans-serif;
+  padding:2rem 1rem; display:flex; justify-content:center; line-height:1.7; color:#1a2639;
+}
+/* 返回按钮 */
+.back-btn {
+  position: fixed; top: 18px; left: 18px; z-index: 999;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #0b2b4f; color: #fff; text-decoration: none;
+  padding: 0.6rem 1.3rem; border-radius: 40px;
+  font-size: 0.95rem; font-weight: 600;
+  box-shadow: 0 6px 18px rgba(11,43,79,0.35);
+  border: 2px solid #e5b13b;
+  transition: all 0.2s;
+}
+.back-btn:hover { background: #1d4b7a; transform: translateY(-2px); box-shadow: 0 10px 22px rgba(11,43,79,0.4); }
+.back-btn:active { transform: translateY(0); }
+.back-btn .arrow { font-size: 1.1rem; line-height: 1; }
+
+.manual {
+  max-width:1040px; width:100%; background:#fff; border-radius:48px 48px 32px 32px;
+  box-shadow:0 25px 50px -12px rgba(0,0,0,.25); overflow:hidden;
+}
+.header {
+  background:#0b2b4f; background-image:radial-gradient(circle at 10% 30%,#1d4b7a 0%,#0a1f38 100%);
+  padding:2.8rem 2.8rem 2.2rem; color:#fff; border-bottom:6px solid #e5b13b;
+}
+.header h1 { font-size:2.6rem; font-weight:700; line-height:1.2; margin-bottom:.6rem; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.header h1 span { background:#e5b13b; font-size:1rem; font-weight:600; color:#0b2b4f; padding:.25rem 1rem; border-radius:40px; }
+.header .subhead { font-size:1.1rem; color:#c9d9eb; max-width:85%; margin-top:.5rem; border-left:4px solid #e5b13b; padding-left:1.2rem; }
+.badge-row { display:flex; gap:12px; margin-top:1.8rem; flex-wrap:wrap; }
+.badge { background:rgba(255,255,255,.1); padding:.3rem 1rem; border-radius:30px; font-size:.9rem; border:1px solid rgba(255,255,255,.2); color:#eef4ff; }
+.badge.gold { background:#e5b13b; color:#0b2b4f; font-weight:600; border:none; }
+.content { padding:2.5rem 2.8rem 3rem; }
+.section { margin-bottom:2.8rem; }
+.section-title { font-size:1.6rem; font-weight:700; margin-bottom:1.4rem; display:flex; align-items:center; gap:12px; color:#0b2b4f; border-bottom:2px solid #dde5f0; padding-bottom:.6rem; }
+.section-title .num { background:#0b2b4f; color:#e5b13b; width:38px; height:38px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; font-size:1.3rem; font-weight:700; flex-shrink:0; }
+.card { background:#f9fbfe; border-radius:24px; padding:1.8rem 2rem; border:1px solid #e2eaf5; margin-bottom:1.2rem; }
+.card.alert { background:#fff8eb; border-left:6px solid #e5b13b; border-radius:16px 24px 24px 16px; }
+.card.legal { background:#edf3fc; border-left:6px solid #1d4b7a; border-radius:16px 24px 24px 16px; }
+.card.dark { background:#0b2b4f; color:#e8eff9; border:none; }
+.card.dark strong { color:#e5b13b; }
+.card strong { color:#0b2b4f; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.step-list { list-style:none; counter-reset:step; }
+.step-list li { counter-increment:step; margin-bottom:1.8rem; padding-left:3rem; position:relative; }
+.step-list li::before { content:counter(step); background:#0b2b4f; color:#fff; font-weight:700; width:2.2rem; height:2.2rem; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; position:absolute; left:0; top:0; font-size:1rem; }
+.step-list li h4 { font-size:1.2rem; font-weight:700; margin-bottom:.4rem; color:#0b2b4f; }
+.tag { display:inline-block; background:#e5b13b20; color:#9b6f0e; font-weight:600; font-size:.8rem; padding:.2rem .8rem; border-radius:30px; margin-left:10px; }
+.tag.blue { background:#1d4b7a15; color:#1d4b7a; }
+.province-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.5rem; background:#f0f4fa; padding:1rem 1.2rem; border-radius:20px; align-items:center; }
+.province-bar .label { font-weight:700; color:#0b2b4f; margin-right:8px; font-size:.95rem; }
+.province-btn { padding:.45rem 1.2rem; border-radius:30px; border:2px solid #cbd6e6; background:#fff; color:#3e5570; font-weight:600; font-size:.9rem; cursor:pointer; transition:all .2s; font-family:inherit; }
+.province-btn:hover { border-color:#0b2b4f; color:#0b2b4f; }
+.province-btn.active { background:#0b2b4f; color:#fff; border-color:#0b2b4f; }
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#cbd6e6; margin-right:6px; vertical-align:middle; }
+.province-btn.active .dot { background:#e5b13b; }
+.standard-display { background:#fff; border-radius:20px; padding:1.5rem 1.8rem; border:2px solid #e5b13b; margin-bottom:1rem; }
+.standard-display .region-name { font-size:1.3rem; font-weight:700; color:#0b2b4f; margin-bottom:.8rem; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.standard-display .region-name .note { font-size:.8rem; font-weight:400; color:#7a8fa8; background:#f0f4fa; padding:.2rem .7rem; border-radius:20px; }
+.standard-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.standard-box { background:#f9fbfe; border-radius:16px; padding:1.2rem 1.4rem; text-align:center; border:1px solid #e2eaf5; }
+.standard-box .type { font-size:.85rem; color:#7a8fa8; margin-bottom:.3rem; }
+.standard-box .value { font-size:2rem; font-weight:800; color:#0b2b4f; letter-spacing:-.5px; }
+.standard-box .value small { font-size:1rem; font-weight:500; color:#7a8fa8; }
+.standard-box .desc { font-size:.8rem; color:#9aabbe; margin-top:.3rem; }
+.standard-placeholder { background:#fff8eb; border:2px dashed #e5b13b; border-radius:16px; padding:1.2rem 1.5rem; color:#8a6d1f; font-size:.95rem; }
+.standard-placeholder strong { color:#0b2b4f; }
+.money-table { width:100%; border-collapse:separate; border-spacing:0 8px; margin:1rem 0; }
+.money-table td { background:#fff; padding:1rem 1.2rem; border-radius:14px; border:1px solid #e2eaf5; vertical-align:top; }
+.money-table td:first-child { font-weight:600; color:#0b2b4f; width:36%; }
+.footer-note { background:#f0f4fa; border-radius:24px; padding:1.6rem 2rem; margin-top:2rem; color:#2a405b; font-size:.92rem; border:1px solid #d5e0ef; }
+.highlight { background:#e5b13b20; padding:.1rem .4rem; border-radius:6px; font-weight:600; color:#0b2b4f; }
+
+/* 真心话卡片 */
+.heart-card {
+  background: linear-gradient(135deg, #0b2b4f 0%, #1d4b7a 100%);
+  border-radius: 28px; padding: 2.4rem 2.6rem; color: #fff;
+  margin: 2rem 0 0 0; position: relative; overflow: hidden;
+  box-shadow: 0 15px 35px -10px rgba(11,43,79,0.5);
+  border: 2px solid #e5b13b;
+}
+.heart-card::before {
+  content: '❝'; position: absolute; top: -10px; left: 18px;
+  font-size: 8rem; color: rgba(229,177,59,0.12); font-family: Georgia, serif;
+  line-height: 1; pointer-events: none;
+}
+.heart-card .heart-tag {
+  display: inline-block; background: #e5b13b; color: #0b2b4f;
+  font-weight: 700; font-size: 0.85rem; padding: 0.3rem 1.1rem;
+  border-radius: 30px; margin-bottom: 1.2rem; letter-spacing: 0.5px;
+}
+.heart-card h3 {
+  font-size: 1.5rem; font-weight: 700; margin-bottom: 1.2rem; color: #e5b13b;
+  line-height: 1.4;
+}
+.heart-card p {
+  font-size: 1.08rem; line-height: 1.9; color: #e0e9f5;
+  margin-bottom: 1.2rem; position: relative; z-index: 1;
+}
+.heart-card p:last-child { margin-bottom: 0; }
+.heart-card .sign {
+  margin-top: 1.8rem; padding-top: 1.2rem;
+  border-top: 1px solid rgba(229,177,59,0.3);
+  font-size: 0.95rem; color: #b8cade; font-style: italic;
+  text-align: right;
+}
+.heart-card .sign strong { color: #e5b13b; font-style: normal; }
+
+@media (max-width:700px){
+  body { padding:.8rem; }
+  .back-btn { top: 10px; left: 10px; padding: 0.45rem 1rem; font-size: 0.85rem; }
+  .header { padding:2rem 1.5rem; }
+  .header h1 { font-size:1.8rem; }
+  .header .subhead { max-width:100%; font-size:1rem; }
+  .content { padding:1.8rem 1.2rem; }
+  .grid-2, .standard-grid { grid-template-columns:1fr; }
+  .card { padding:1.2rem; }
+  .section-title { font-size:1.3rem; }
+  .heart-card { padding: 1.8rem 1.6rem; }
+  .heart-card h3 { font-size: 1.25rem; }
+  .heart-card p { font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- 返回按钮 -->
+<a class="back-btn" href="https://xiaoma20160802.github.io/workbench/fish/" title="返回工作台">
+  <span class="arrow">←</span> 返回
+</a>
+
+<div class="manual">
+  <div class="header">
+    <h1>⚖️ 工资低于最低标准 <span>维权说明书</span></h1>
+    <div class="subhead">默认广东省 · 可切换省份 · 从证据固定到行政投诉与仲裁，一步步拿回属于你的差额。</div>
+    <div class="badge-row">
+      <div class="badge gold">📋 全流程</div>
+      <div class="badge">🔄 省份可切换</div>
+      <div class="badge">⚡ 附赔偿金主张</div>
+      <div class="badge">🆓 仲裁不收费</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 1. 省份切换 + 标准 -->
+    <div class="section">
+      <div class="section-title"><span class="num">1</span> 选择省份，核对当地标准</div>
+
+      <div class="province-bar">
+        <span class="label">📍 所在省份：</span>
+        <button class="province-btn active" data-province="gd"><span class="dot"></span>广东</button>
+        <button class="province-btn" data-province="yn"><span class="dot"></span>云南</button>
+        <button class="province-btn" data-province="sc"><span class="dot"></span>四川</button>
+        <button class="province-btn" data-province="gx"><span class="dot"></span>广西</button>
+        <button class="province-btn" data-province="other"><span class="dot"></span>其他省份</button>
+      </div>
+
+      <div class="standard-display" id="standardDisplay"></div>
+
+      <div class="card alert">
+        <p><strong>⚠️ 关键点：</strong>最低工资是“净得”概念——<strong>加班费、津贴、伙食/住房补贴</strong>不能算进去；但<strong>你个人缴纳的社保和公积金</strong>是包含在最低工资里的。具体到每个省、每个市（甚至区县），档次可能不同，务必以当地人社局最新公告为准。</p>
+        <p style="margin-top:.8rem;">举个例子：某公司给你开 2200 元，看起来不低，但如果其中 300 元是“全勤奖”、200 元是“餐补”、400 元是加班费，那么真正的基础工资只有 1300 元——这很可能已经踩线。所以看工资条时，一定要把“固定发放部分”和“浮动/补贴部分”分开看。</p>
+      </div>
+    </div>
+
+    <!-- 2. 判断标准 -->
+    <div class="section">
+      <div class="section-title"><span class="num">2</span> 先判断：你的工资真的“低于标准”吗？</div>
+      <div class="grid-2">
+        <div class="card">
+          <h4 style="margin-bottom:.8rem;color:#0b2b4f;">📌 全日制（月薪）</h4>
+          <p>标准工时（每天8小时、每周40小时）下，剔除加班费、夜班津贴、餐补房补后，<strong>应发工资（含个人社保公积金部分）</strong>不得低于当地月最低工资。</p>
+          <p style="margin-top:.6rem;font-size:.92rem;color:#5a6f88;">注意：试用期工资也不得低于最低工资标准，更不能低于本单位相同岗位最低档工资的 80%。</p>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:.8rem;color:#0b2b4f;">⏱️ 非全日制（时薪）</h4>
+          <p>按小时计酬的兼职、钟点工，用人单位支付的小时工资<strong>不得低于</strong>当地非全日制小时最低工资标准。</p>
+          <p style="margin-top:.6rem;font-size:.92rem;color:#5a6f88;">注意：非全日制用工的社保由用人单位缴纳工伤保险，其他险种由个人处理，但时薪底线不能破。</p>
+        </div>
+      </div>
+      <div class="card legal">
+        <strong>📖 法律依据：</strong>《劳动合同法》第八十五条：劳动报酬低于当地最低工资标准的，应当支付其差额部分；逾期不支付的，责令用人单位按应付金额<strong>50%以上100%以下</strong>的标准向劳动者加付赔偿金。
+        <p style="margin-top:.8rem;font-size:.95rem;">同时，《劳动法》第四十八条明确规定：国家实行最低工资保障制度，用人单位支付劳动者的工资不得低于当地最低工资标准。这不是“建议”，是<strong>强制性法律义务</strong>。</p>
+      </div>
+    </div>
+
+    <!-- 3. 证据 -->
+    <div class="section">
+      <div class="section-title"><span class="num">3</span> 第一步：固定证据（现在就能做）</div>
+      <ol class="step-list">
+        <li>
+          <h4>📸 保存工资条 / 银行流水 <span class="tag">核心证据</span></h4>
+          <p>截图或拍照保存近 6~12 个月的工资条（需显示应发、扣款、实发金额）。银行转账去柜台或APP导出带公章的流水；微信/支付宝转账保留含对方账户名的截图。如果公司从不发工资条，银行流水就是最直接的证据——每一笔转账的时间、金额、对方账户名都要清晰可见。</p>
+        </li>
+        <li>
+          <h4>📄 保留考勤记录 <span class="tag blue">证明正常劳动</span></h4>
+          <p>拍下考勤机记录、钉钉/企业微信打卡截图、排班表。法律要求的是“提供正常劳动”情况下的工资，考勤能证明你正常出勤、没有旷工。如果公司用纸质签到表，尽量拍下有你签名的那几页；如果是口头排班，保留微信群里的排班通知。</p>
+        </li>
+        <li>
+          <h4>💬 收集沟通记录</h4>
+          <p>与老板/HR 沟通工资问题的微信聊天、短信、录音（录音需自然、不侵犯隐私，可作为辅助证据）。公司发过书面降薪通知的务必保存。特别提醒：如果HR在微信里说“最近公司困难，先发这么多”，这句话本身就是承认未足额支付的证据。</p>
+        </li>
+        <li>
+          <h4>📝 整理“差额计算表”</h4>
+          <p>列一个表：月份 / 应发工资 / 当地最低标准 / 差额。例如：应发 1800，标准 2120，差额 320 元。累计算出总差额。这张表在投诉和仲裁时都会用到，越清晰越好。建议同时算出“加付赔偿金”的区间（差额的50%~100%），心里有底。</p>
+        </li>
+        <li>
+          <h4>🧾 劳动合同与入职材料 <span class="tag blue">辅助证据</span></h4>
+          <p>劳动合同、入职登记表、工牌、工作服、同事证言都可以辅助证明劳动关系。如果公司没签合同，反而对你有利——未签劳动合同可主张双倍工资差额（最多11个月），这是另一个维度的权利。</p>
+        </li>
+      </ol>
+    </div>
+
+    <!-- 4. 两条路 -->
+    <div class="section">
+      <div class="section-title"><span class="num">4</span> 第二步：两条维权路，选一条走</div>
+      <div class="grid-2" style="margin-bottom:1.2rem;">
+        <div class="card" style="background:#edf3fc;border-left:6px solid #1d4b7a;">
+          <h4 style="font-size:1.3rem;margin-bottom:.6rem;">🚀 路径 A：劳动监察投诉</h4>
+          <p><strong>适合：</strong>事实清楚、证据充分、想快速解决、不想和公司彻底撕破脸。</p>
+          <p style="margin-top:.6rem;"><strong>优点：</strong>不收费、程序相对快、行政部门会主动责令公司限期支付。</p>
+          <p style="margin-top:.6rem;"><strong>怎么操作：</strong></p>
+          <ul style="margin-left:1.2rem;margin-top:.3rem;font-size:.95rem;">
+            <li>拨打 <strong>12333</strong> 咨询当地劳动监察窗口地址；</li>
+            <li>带身份证、证据复印件、差额计算表，去公司所在地的<strong>劳动保障监察大队</strong>填投诉表；</li>
+            <li>也可通过当地人社局官网/小程序在线投诉。</li>
+          </ul>
+          <p style="margin-top:.6rem;font-size:.9rem;color:#5a6f88;">监察部门受理后一般会在 60 个工作日内办结，复杂情况可延长 30 个工作日。期间保持电话畅通，配合补充材料。</p>
+        </div>
+        <div class="card" style="background:#fff8eb;border-left:6px solid #e5b13b;">
+          <h4 style="font-size:1.3rem;margin-bottom:.6rem;">⚖️ 路径 B：劳动仲裁</h4>
+          <p><strong>适合：</strong>公司拒不承认、想同时主张加付赔偿金、或打算离职并主张经济补偿。</p>
+          <p style="margin-top:.6rem;"><strong>优点：</strong>有强制执行力，裁决生效后可申请法院执行；<strong>免费</strong>。</p>
+          <p style="margin-top:.6rem;"><strong>怎么操作：</strong></p>
+          <ul style="margin-left:1.2rem;margin-top:.3rem;font-size:.95rem;">
+            <li>去<strong>公司注册地或劳动合同履行地</strong>的劳动人事争议仲裁委员会；</li>
+            <li>提交《仲裁申请书》（窗口有模板）、身份证复印件、证据副本；</li>
+            <li>仲裁时效：<strong>1 年</strong>（从你知道权利被侵害之日起算），尽快行动。</li>
+          </ul>
+          <p style="margin-top:.6rem;font-size:.9rem;color:#5a6f88;">仲裁庭一般 45 日内结案，复杂可延长 15 日。对裁决不服的，可在 15 日内向法院起诉。</p>
+        </div>
+      </div>
+      <div class="card alert">
+        <p><strong>💡 策略建议：</strong>先打 12333 问清当地劳动监察受理方式，同时准备仲裁材料。监察投诉后公司仍不补，立刻转仲裁，并在请求中一并主张<strong>差额 + 50%~100% 加付赔偿金</strong>。两条路不冲突，可以并行推进——监察负责“责令”，仲裁负责“裁决”，双管齐下往往效果更好。</p>
+      </div>
+    </div>
+
+    <!-- 5. 仲裁请求模板 -->
+    <div class="section">
+      <div class="section-title"><span class="num">5</span> 第三步：仲裁请求怎么写（直接抄）</div>
+      <div class="card">
+        <div style="background:#fff;border:1px dashed #b8c9e0;border-radius:16px;padding:1.4rem;font-family:'Courier New',monospace;font-size:.95rem;white-space:pre-wrap;line-height:1.7;">
+<strong>仲裁请求：</strong>
+1. 请求裁决被申请人（公司全称）支付申请人（你的姓名）____年__月至____年__月期间低于当地最低工资标准的工资差额共计 <strong>____ 元</strong>；
+2. 请求裁决被申请人支付上述差额部分 <strong>50%</strong> 的加付赔偿金共计 <strong>____ 元</strong>（依据《劳动合同法》第八十五条）；
+3. 请求裁决被申请人承担本案仲裁费用（仲裁本身免费，此条可写可不写）。
+
+<strong>事实与理由（简写版）：</strong>
+申请人于 ____年__月入职被申请人处，担任____岗位，约定月工资____元。自____年__月起，被申请人每月实发工资（剔除加班费/津贴后）仅为____元，低于当地月最低工资标准____元。申请人多次沟通无果。为维护合法权益，特申请仲裁，望裁如所请。</div>
+        <p style="margin-top:.8rem;font-size:.95rem;color:#3e5570;">📎 证据清单附上：工资流水、工资条、考勤记录、劳动合同（如有）、微信沟通截图。</p>
+        <p style="margin-top:.6rem;font-size:.9rem;color:#7a8fa8;">提示：仲裁申请书一式两份（或按被申请人人数+1份），证据材料同样准备副本。窗口工作人员通常会帮你检查格式，不用怕写错。</p>
+      </div>
+    </div>
+
+    <!-- 6. 赔偿金 -->
+    <div class="section">
+      <div class="section-title"><span class="num">6</span> 关于赔偿金：你还能多拿一笔</div>
+      <div class="card legal">
+        <p>《劳动合同法》第八十五条的<strong>加付赔偿金</strong>（应付金额 50%~100%）有一个前置条件：<strong>劳动行政部门责令限期支付后，公司逾期仍不支付</strong>。</p>
+        <p style="margin-top:.8rem;">👉 <strong>操作技巧：</strong>先向劳动监察投诉，拿到《责令改正通知书》后，公司到期不给，再申请仲裁主张加付赔偿金，成功率更高。直接仲裁也可写上，仲裁庭会根据是否经过行政责令判断是否支持。</p>
+        <p style="margin-top:.8rem;font-size:.95rem;">另外，如果因为公司长期低于最低工资标准发薪，你以此为由<strong>被迫解除劳动合同</strong>，还可以主张<strong>经济补偿金</strong>（每满一年支付一个月工资，六个月以上不满一年按一年算，不满六个月支付半个月）。这是很多人不知道的“隐藏权益”。</p>
+      </div>
+    </div>
+
+    <!-- 7. 特殊情形 -->
+    <div class="section">
+      <div class="section-title"><span class="num">7</span> 特殊情形与提醒</div>
+      <table class="money-table">
+        <tr><td>🧑‍💼 还在职，怕被穿小鞋？</td><td>劳动监察可匿名举报，但想拿回自己的差额通常需实名。仲裁是法定权利，公司若因此辞退你，属<strong>违法解除</strong>，可主张 2N 赔偿金。法律保护正当维权，不用过度担心。</td></tr>
+        <tr><td>📅 已经离职还能维权吗？</td><td>可以。仲裁时效 1 年，从离职之日起算。离职交接单上注明“工资差额未结清”，保留证据。很多人离职后才想起来维权，只要没超时效，完全来得及。</td></tr>
+        <tr><td>💰 公司说“包吃住”所以工资低？</td><td>包吃住属<strong>福利</strong>，不能折抵最低工资。除非合同明确约定“工资中含食宿补贴”且以货币形式发放，否则不能扣除。口头承诺的“包吃住”更不算数。</td></tr>
+        <tr><td>🆘 没钱请律师怎么办？</td><td>拨打 <strong>12348</strong> 法律援助热线，劳动争议属法律援助事项，符合条件可申请免费律师。仲裁本身不收费，自己写申请书也完全可行。</td></tr>
+        <tr><td>🏢 公司注册地和上班地不一样？</td><td>仲裁可向<strong>劳动合同履行地</strong>（你实际上班的地方）的仲裁委申请，不用跑到公司注册地，方便很多。</td></tr>
+      </table>
+    </div>
+
+    <!-- 8. 行动清单 -->
+    <div class="section">
+      <div class="section-title"><span class="num">8</span> 快速行动清单（截图保存）</div>
+      <div class="card dark">
+        <ul style="list-style:none;font-size:1.05rem;">
+          <li style="margin-bottom:.8rem;">✅ <strong>今天：</strong>导出近 6 个月银行流水 + 拍工资条</li>
+          <li style="margin-bottom:.8rem;">✅ <strong>明天：</strong>算清总差额，写一页纸的证据清单</li>
+          <li style="margin-bottom:.8rem;">✅ <strong>本周：</strong>打 12333 问劳动监察地址，去现场提交投诉</li>
+          <li style="margin-bottom:.8rem;">✅ <strong>同步：</strong>准备仲裁申请书（万一投诉慢，直接转仲裁）</li>
+          <li>✅ <strong>记住：</strong>仲裁免费，时效 1 年，别拖。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 真心话 -->
+    <div class="heart-card">
+      <div class="heart-tag">💌 写在最后 · 一段真心话</div>
+      <h3>正义只会迟到，不会缺席</h3>
+      <p>我知道，点开这份说明书的时候，你可能已经憋了很久。也许你反复算过那几百块的差额，犹豫要不要为了它“得罪公司”；也许你担心维权之后被穿小鞋、被排挤，甚至丢掉工作；也许你身边有人说“算了吧，几百块钱不值得”。</p>
+      <p>但我想告诉你：<strong>这不是几百块钱的事。</strong>这是你每天按时打卡、认真干活换来的劳动报酬，是法律白纸黑字写下的底线。用人单位低于最低工资标准发薪，不是“经营困难”的无奈，而是明确的违法行为。你选择维权，不是在“找麻烦”，而是在守护一条本该属于每个劳动者的线。</p>
+      <p>维权路确实可能漫长。投诉要跑窗口，仲裁要等排期，公司可能推诿、拖延，甚至态度强硬。你会累，会烦，会在某个瞬间想放弃。这都很正常。但请记得：<strong>你每往前走一步，证据就多一分，底气就足一分。</strong>那些看起来庞大的公司，在法律面前并没有你想象的那么强势——劳动监察的一纸责令、仲裁庭的一份裁决，都是实实在在的约束力。</p>
+      <p>正义或许不会在你提交材料的第二天就降临，但它不会因为公司的拖延而消失。仲裁时效有一年，法律站在你这边，免费的法律援助、不收费的仲裁、12333 的热线，都是为你准备的工具。<strong>你不需要是法律专家，你只需要开始行动。</strong></p>
+      <p>最后想说：无论结果如何，你为自己站出来这件事本身，就已经很有意义。愿每一个认真工作的人，都能拿到应得的那一份。正义只会迟到，不会缺席。</p>
+      <div class="sign">—— 写给正在维权的你，<strong>加油</strong>。</div>
+    </div>
+
+    <div class="footer-note">
+      <p>📌 <strong>说明：</strong>本说明书默认展示广东省标准，可切换省份查看。广东、云南、四川、广西的数据来自各地人社局公开公告，具体到市/区县可能分档不同，请以当地人社局官网或 <strong>12333</strong> 最新答复为准。其他省份暂无单独固定标准展示，<strong>按全国通用规则处理</strong>，即：用人单位支付工资不得低于当地省级政府公布的最低工资标准，具体金额请查询当地人社局公告。</p>
+      <p style="margin-top:.8rem;">🔗 查询入口：各省人力资源和社会保障厅官网 → “最低工资标准”专栏；或拨打 <strong>12333</strong> 转人工咨询。法律援助热线：<strong>12348</strong>。</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const provinceData = {
+  gd: {
+    name: '广东省',
+    note: '分四档，以当地人社局公告为准',
+    monthly: '1900 ~ 2360',
+    hourly: '18.1 ~ 22.2',
+    desc: '广州、深圳等一类地区较高，粤东西北部分县区适用较低档'
+  },
+  yn: {
+    name: '云南省',
+    note: '分三类地区',
+    monthly: '1770 ~ 1990',
+    hourly: '17 ~ 19',
+    desc: '昆明等一类地区较高，其他州市按二、三类执行'
+  },
+  sc: {
+    name: '四川省',
+    note: '分三档',
+    monthly: '1870 ~ 2100',
+    hourly: '18 ~ 22',
+    desc: '成都等一类地区较高，其余市州按档次执行'
+  },
+  gx: {
+    name: '广西壮族自治区',
+    note: '分三类地区',
+    monthly: '1690 ~ 1990',
+    hourly: '17 ~ 20.1',
+    desc: '南宁等一类地区较高，其余按二、三类执行'
+  },
+  other: {
+    name: '其他省份',
+    note: '暂无单独固定标准展示',
+    monthly: '—',
+    hourly: '—',
+    desc: '按全国通用规则处理，具体金额请查询当地人社局公告'
+  }
+};
+
+function renderProvince(key) {
+  const d = provinceData[key];
+  const box = document.getElementById('standardDisplay');
+  if (key === 'other') {
+    box.innerHTML = `
+      <div class="region-name">${d.name} <span class="note">${d.note}</span></div>
+      <div class="standard-placeholder">
+        <strong>暂无固定省份单独标准展示。</strong><br>
+        按全国通用规则处理：用人单位支付工资不得低于当地省级政府公布的最低工资标准。<br>
+        具体金额请查询<strong>当地省人力资源和社会保障厅官网</strong>“最低工资标准”专栏，或拨打 <strong>12333</strong> 转人工咨询。
+      </div>`;
+  } else {
+    box.innerHTML = `
+      <div class="region-name">${d.name} <span class="note">${d.note}</span></div>
+      <div class="standard-grid">
+        <div class="standard-box">
+          <div class="type">月最低工资标准</div>
+          <div class="value">${d.monthly} <small>元/月</small></div>
+          <div class="desc">全日制用工</div>
+        </div>
+        <div class="standard-box">
+          <div class="type">小时最低工资标准</div>
+          <div class="value">${d.hourly} <small>元/小时</small></div>
+          <div class="desc">非全日制用工</div>
+        </div>
+      </div>
+      <p style="margin-top:.8rem;font-size:.85rem;color:#7a8fa8;">${d.desc}。以上为区间参考，具体到市/区县请以当地人社局最新公告为准。</p>`;
+  }
+}
+
+document.querySelectorAll('.province-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.province-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProvince(btn.dataset.province);
+  });
+});
+
+// 默认广东
+renderProvince('gd');
+</script>
+</body>
+</html>
